@@ -1,0 +1,3 @@
+db.url=jdbc:mysql://localhost:3306/NOMBRE_BASE_DE_DATOS?useSSL=false&serverTimezone=UTC
+db.user=TU_USUARIO
+db.password=TU_PASSWORD
