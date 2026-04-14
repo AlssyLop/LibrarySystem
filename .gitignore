@@ -1,3 +1,7 @@
+# =============================================
+# LibrarySystem - .gitignore
+# =============================================
+
 # Archivos compilados de Java
 *.class
 
@@ -9,7 +13,7 @@
 *.tar.gz
 *.rar
 
-# Excluir la carpeta target de Maven (donde se generan los builds temporales)
+# Carpeta target de Maven (builds temporales)
 target/
 
 # Archivos de Maven temporales
@@ -21,7 +25,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 
-# Archivos específicos de NetBeans
+# NetBeans
 nbproject/private/
 build/
 nbbuild/
@@ -29,23 +33,35 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
-# Si usas configuraciones locales estrictas que no quieres compartir
-# nbproject/
 
-# Archivos de logs
-*.log
-
-# Archivos del sistema operativo (Windows / macOS)
-.DS_Store
-Thumbs.db
-
-# Configuración de otros IDEs por si acaso (VSCode, IntelliJ, Eclipse)
+# VSCode
 .vscode/
+
+# IntelliJ IDEA
 .idea/
 *.iml
+
+# Eclipse
 .project
 .classpath
 .settings/
 
-# Archivos de configuración local (Credenciales de Base de Datos)
-src/main/webapp/META-INF/context.xml
+# Logs
+*.log
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Credenciales locales
+src/main/resources/database.properties
+
+# Datos de prueba (archivos pesados generados)
+seed_data.sql
+generate_seed.py
+
+# Gemini / Agentes AI
+.agents/
+.gemini/
+skills-lock.json
