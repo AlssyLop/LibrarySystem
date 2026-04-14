@@ -12,7 +12,7 @@ import java.sql.Date;
 /**
  * Servlet encargado del tráfico HTTP relacionado a los Préstamos
  */
-@WebServlet(name = "LoanServlet", urlPatterns = {"/LoanServlet", "/registerloan"})
+@WebServlet(name = "LoanServlet", urlPatterns = {"/loans"})
 public class LoanServlet extends HttpServlet {
     
     private LoanController loanController = new LoanController();
@@ -21,21 +21,57 @@ public class LoanServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String path = request.getServletPath();
-        if ("/registerloan".equals(path)) {
-            request.getRequestDispatcher("/pages/registerLoan.jsp").forward(request, response);
-            return;
-        }
-
         String action = request.getParameter("action");
+        if (action == null) {
+            action = "list";
+        }
         
-        if ("history".equals(action)) {
-            request.setAttribute("loans", loanController.loanHistory());
-            request.getRequestDispatcher("/pages/loanHistory.jsp").forward(request, response);
+        if ("list".equals(action)) {
+            int limit = 20;
+            int pageActive = 1;
+            int pageHistory = 1;
+
+            String pActive = request.getParameter("pageActive");
+            if (pActive != null && !pActive.isEmpty()) pageActive = Integer.parseInt(pActive);
+
+            String pHistory = request.getParameter("pageHistory");
+            if (pHistory != null && !pHistory.isEmpty()) pageHistory = Integer.parseInt(pHistory);
+
+            String activeTab = request.getParameter("tab");
+            if (activeTab == null) activeTab = "actives";
+
+            // Extract filters
+            Integer idUserSearch = null;
+            String userSearchParam = request.getParameter("idUserSearch");
+            if (userSearchParam != null && !userSearchParam.trim().isEmpty()) {
+                try {
+                    idUserSearch = Integer.parseInt(userSearchParam.trim());
+                } catch(NumberFormatException e){}
+            }
+
+            Date dateFilter = null;
+            String dateParam = request.getParameter("dateFilter");
+            if (dateParam != null && !dateParam.trim().isEmpty()) {
+                dateFilter = Date.valueOf(dateParam.trim());
+            }
+
+            int offsetActive = (pageActive - 1) * limit;
+            int offsetHistory = (pageHistory - 1) * limit;
+
+            request.setAttribute("activeLoans", loanController.listActiveLoansPaginated(limit, offsetActive, idUserSearch, dateFilter));
+            request.setAttribute("allLoans", loanController.loanHistoryPaginated(limit, offsetHistory));
             
-        } else if ("register".equals(action)) {
-            // Mostrar formulario de registro
-            request.getRequestDispatcher("/pages/registerLoan.jsp").forward(request, response);
+            request.setAttribute("activeCurrentPage", pageActive);
+            request.setAttribute("historyCurrentPage", pageHistory);
+            request.setAttribute("activeTotalPages", (int) Math.ceil((double) loanController.countActiveLoans(idUserSearch, dateFilter) / limit));
+            request.setAttribute("historyTotalPages", (int) Math.ceil((double) loanController.countHistoryLoans() / limit));
+            request.setAttribute("activeTab", activeTab);
+            
+            // Preserve search state
+            request.setAttribute("idUserSearch", idUserSearch != null ? idUserSearch : "");
+            request.setAttribute("dateFilter", dateFilter != null ? dateFilter.toString() : "");
+
+            request.getRequestDispatcher("/pages/loans.jsp").forward(request, response);
         }
     }
 
@@ -43,24 +79,58 @@ public class LoanServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String path = request.getServletPath();
         String action = request.getParameter("action");
         
-        if ("register".equals(action) || "/registerloan".equals(path)) {
-            Date loanDate = Date.valueOf(request.getParameter("loanDate"));
-            Date returnDate = Date.valueOf(request.getParameter("returnDate"));
-            int idUser = Integer.parseInt(request.getParameter("idUser"));
-            int idBook = Integer.parseInt(request.getParameter("idBook"));
+        if ("registerAjax".equals(action)) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
             
-            loanController.registerLoan(loanDate, returnDate, idUser, idBook);
-            response.sendRedirect("LoanServlet?action=history");
+            String idUserStr = request.getParameter("idUser");
+            String idBookStr = request.getParameter("idBook");
+            
+            if (idUserStr == null || idUserStr.trim().isEmpty() || idBookStr == null || idBookStr.trim().isEmpty()) {
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Debe seleccionar un usuario y un libro.\"}");
+                return;
+            }
+            
+            try {
+                int idUser = Integer.parseInt(idUserStr.trim());
+                int idBook = Integer.parseInt(idBookStr.trim());
+                Date loanDate = new Date(System.currentTimeMillis());
+                
+                boolean ok = loanController.registerLoan(loanDate, null, idUser, idBook);
+                if (ok) {
+                    response.getWriter().write("{\"status\":\"success\",\"message\":\"Préstamo registrado exitosamente.\"}");
+                } else {
+                    response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al registrar el préstamo.\"}");
+                }
+            } catch (NumberFormatException e) {
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Los IDs de usuario o libro no son válidos.\"}");
+            }
+            
+        } else if ("register".equals(action)) {
+            Date loanDate = new Date(System.currentTimeMillis());
+            
+            String idUserStr = request.getParameter("idUser");
+            String idBookStr = request.getParameter("idBook");
+            
+            if (idUserStr == null || idUserStr.isEmpty() || idBookStr == null || idBookStr.isEmpty()) {
+                response.sendRedirect("loans");
+                return;
+            }
+            
+            int idUser = Integer.parseInt(idUserStr);
+            int idBook = Integer.parseInt(idBookStr);
+            
+            loanController.registerLoan(loanDate, null, idUser, idBook);
+            response.sendRedirect("loans");
             
         } else if ("return".equals(action)) {
             int idLoan = Integer.parseInt(request.getParameter("idLoan"));
-            Date returnDate = Date.valueOf(request.getParameter("returnDate"));
+            Date returnDate = new Date(System.currentTimeMillis()); // Fecha actual de devolucion
             
             loanController.returnBook(idLoan, returnDate);
-            response.sendRedirect("LoanServlet?action=history");
+            response.sendRedirect("loans");
         }
     }
 }

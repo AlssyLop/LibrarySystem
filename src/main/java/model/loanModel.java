@@ -12,6 +12,16 @@ public class loanModel {
     private Date returnDate;
     private int idUser;
     private int idBook;
+    private boolean returned;
+
+    public loanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook, boolean returned) {
+        this.idLoan = idLoan;
+        this.loanDate = loanDate;
+        this.returnDate = returnDate;
+        this.idUser = idUser;
+        this.idBook = idBook;
+        this.returned = returned;
+    }
 
     public loanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook) {
         this.idLoan = idLoan;
@@ -19,6 +29,7 @@ public class loanModel {
         this.returnDate = returnDate;
         this.idUser = idUser;
         this.idBook = idBook;
+        this.returned = false; // Default falso
     }
 
     public int getIdLoan() {
@@ -59,5 +70,13 @@ public class loanModel {
 
     public void setIdBook(int idBook) {
         this.idBook = idBook;
+    }
+
+    public boolean isReturned() {
+        return returned;
+    }
+
+    public void setReturned(boolean returned) {
+        this.returned = returned;
     }
 }

@@ -12,4 +12,9 @@ public interface ILoanDAO {
     boolean registerLoan(loanModel loan);
     boolean returnBook(int idLoan, Date returnDate);
     List<loanModel> loanHistory();
+    List<loanModel> listActiveLoans();
+    List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter);
+    int countActiveLoans(Integer idUserSearch, Date dateFilter);
+    List<loanModel> loanHistoryPaginated(int limit, int offset);
+    int countHistoryLoans();
 }
