@@ -25,4 +25,21 @@ public class AuthorController {
     public List<authorModel> listAuthors() {
         return authorDAO.listAuthors();
     }
+
+    public boolean updateAuthor(int idAuthor, String name, String nationality) {
+        authorModel author = new authorModel(idAuthor, name, nationality);
+        return authorDAO.updateAuthor(author);
+    }
+
+    public authorModel searchAuthor(int idAuthor) {
+        return authorDAO.searchAuthor(idAuthor);
+    }
+
+    public List<authorModel> listAuthorsPaginated(int limit, int offset, String query) {
+        return authorDAO.listAuthorsPaginated(limit, offset, query);
+    }
+
+    public int countAuthors(String query) {
+        return authorDAO.countAuthors(query);
+    }
 }

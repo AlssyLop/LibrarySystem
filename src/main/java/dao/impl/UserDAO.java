@@ -18,11 +18,19 @@ public class UserDAO implements IUserDAO {
 
     // Centralized mapping from ResultSet to userModel object
     private userModel mapResultSetToUser(ResultSet rs) throws SQLException {
+        boolean activo = true;
+        try {
+            activo = rs.getBoolean("activo");
+        } catch (SQLException e) {
+            // If the column doesn't exist in a specific query, keep it true
+        }
+
         return new userModel(
             rs.getInt("id_user"),
             rs.getString("name"),
             rs.getString("email"),
-            rs.getString("phone")
+            rs.getString("phone"),
+            activo
         );
     }
 
@@ -52,7 +60,7 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public List<userModel> listUsers() {
-        String sql = "SELECT id_user, name, email, phone FROM users";
+        String sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1";
         List<userModel> usersList = new ArrayList<>();
 
         try {
@@ -76,7 +84,7 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public boolean deleteUser(int idUser) {
-        String sql = "DELETE FROM users WHERE id_user = ?";
+        String sql = "UPDATE users SET activo = 0 WHERE id_user = ?";
         boolean isDeleted = false;
 
         try {
@@ -94,5 +102,138 @@ public class UserDAO implements IUserDAO {
         }
 
         return isDeleted;
+    }
+
+    @Override
+    public boolean updateUser(userModel user) {
+        String sql = "UPDATE users SET name = ?, email = ?, phone = ?, activo = ? WHERE id_user = ?";
+        boolean isUpdated = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, user.getName());
+                    ps.setString(2, user.getEmail());
+                    ps.setString(3, user.getPhone());
+                    ps.setBoolean(4, user.isActivo());
+                    ps.setInt(5, user.getIdUser());
+
+                    int rowsAffected = ps.executeUpdate();
+                    isUpdated = rowsAffected > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating user: " + e.getMessage());
+        }
+
+        return isUpdated;
+    }
+
+    @Override
+    public userModel searchUser(int idUser) {
+        String sql = "SELECT id_user, name, email, phone, activo FROM users WHERE id_user = ?";
+        userModel user = null;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, idUser);
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            user = mapResultSetToUser(rs);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error searching user: " + e.getMessage());
+        }
+
+        return user;
+    }
+
+    @Override
+    public List<userModel> listUsersPaginated(int limit, int offset, String query) {
+        String sql;
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+
+        if (hasQuery) {
+            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 AND (name LIKE ? OR email LIKE ?) LIMIT ? OFFSET ?";
+        } else {
+            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 LIMIT ? OFFSET ?";
+        }
+        
+        List<userModel> usersList = new ArrayList<>();
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    
+                    if (hasQuery) {
+                        String likeQuery = "%" + query.trim() + "%";
+                        ps.setString(1, likeQuery);
+                        ps.setString(2, likeQuery);
+                        ps.setInt(3, limit);
+                        ps.setInt(4, offset);
+                    } else {
+                        ps.setInt(1, limit);
+                        ps.setInt(2, offset);
+                    }
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            userModel user = mapResultSetToUser(rs);
+                            usersList.add(user);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error listing users paginated: " + e.getMessage());
+        }
+
+        return usersList;
+    }
+
+    @Override
+    public int countUsers(String query) {
+        String sql;
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+
+        if (hasQuery) {
+            sql = "SELECT COUNT(*) FROM users WHERE activo = 1 AND (name LIKE ? OR email LIKE ?)";
+        } else {
+            sql = "SELECT COUNT(*) FROM users WHERE activo = 1";
+        }
+        
+        int count = 0;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    
+                    if (hasQuery) {
+                        String likeQuery = "%" + query.trim() + "%";
+                        ps.setString(1, likeQuery);
+                        ps.setString(2, likeQuery);
+                    }
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            count = rs.getInt(1);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error counting users: " + e.getMessage());
+        }
+
+        return count;
     }
 }

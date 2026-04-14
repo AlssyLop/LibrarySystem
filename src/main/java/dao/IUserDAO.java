@@ -14,4 +14,8 @@ public interface IUserDAO {
     List<userModel> listUsers();
 
     boolean deleteUser(int idUser);
+    boolean updateUser(userModel user);
+    userModel searchUser(int idUser);
+    List<userModel> listUsersPaginated(int limit, int offset, String query);
+    int countUsers(String query);
 }

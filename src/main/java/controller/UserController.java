@@ -41,4 +41,21 @@ public class UserController {
     public boolean deleteUser(int idUser) {
         return userDAO.deleteUser(idUser);
     }
+
+    public boolean updateUser(int idUser, String name, String email, String phone) {
+        userModel user = new userModel(idUser, name, email, phone, true);
+        return userDAO.updateUser(user);
+    }
+
+    public userModel searchUser(int idUser) {
+        return userDAO.searchUser(idUser);
+    }
+
+    public List<userModel> listUsersPaginated(int limit, int offset, String query) {
+        return userDAO.listUsersPaginated(limit, offset, query);
+    }
+
+    public int countUsers(String query) {
+        return userDAO.countUsers(query);
+    }
 }

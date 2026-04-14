@@ -18,7 +18,6 @@ public class BookController {
     }
 
     public boolean registerBook(String title, String isbn, int year, int idAuthor) {
-        // El id se pasa como 0 pues la base de datos lo autoincrementa
         bookModel newBook = new bookModel(0, title, isbn, year, idAuthor);
         return bookDAO.registerBook(newBook);
     }
@@ -29,5 +28,22 @@ public class BookController {
 
     public List<bookModel> listBooks() {
         return bookDAO.listBooks();
+    }
+
+    public boolean updateBook(int idBook, String title, String isbn, int year, int idAuthor) {
+        bookModel book = new bookModel(idBook, title, isbn, year, idAuthor);
+        return bookDAO.updateBook(book);
+    }
+
+    public List<bookModel> listBooksPaginated(int limit, int offset, String query) {
+        return bookDAO.listBooksPaginated(limit, offset, query);
+    }
+
+    public int countBooks(String query) {
+        return bookDAO.countBooks(query);
+    }
+
+    public boolean checkIsbnExists(String isbn) {
+        return bookDAO.checkIsbnExists(isbn);
     }
 }

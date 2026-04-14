@@ -100,4 +100,134 @@ public class BookDAO implements IBookDAO {
 
         return booksList;
     }
+
+    @Override
+    public boolean updateBook(bookModel book) {
+        String sql = "UPDATE books SET title = ?, isbn = ?, year = ?, id_author = ? WHERE id_book = ?";
+        boolean isUpdated = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, book.getTitle());
+                    ps.setString(2, book.getIsbn());
+                    ps.setInt(3, book.getYear());
+                    ps.setInt(4, book.getIdAuthor());
+                    ps.setInt(5, book.getIdBook());
+
+                    int rowsAffected = ps.executeUpdate();
+                    isUpdated = rowsAffected > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating book: " + e.getMessage());
+        }
+
+        return isUpdated;
+    }
+
+    @Override
+    public List<bookModel> listBooksPaginated(int limit, int offset, String query) {
+        String sql;
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+
+        if (hasQuery) {
+            sql = "SELECT id_book, title, isbn, year, id_author FROM books WHERE title LIKE ? OR isbn LIKE ? LIMIT ? OFFSET ?";
+        } else {
+            sql = "SELECT id_book, title, isbn, year, id_author FROM books LIMIT ? OFFSET ?";
+        }
+        
+        List<bookModel> booksList = new ArrayList<>();
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    
+                    if (hasQuery) {
+                        String likeQuery = "%" + query.trim() + "%";
+                        ps.setString(1, likeQuery);
+                        ps.setString(2, likeQuery);
+                        ps.setInt(3, limit);
+                        ps.setInt(4, offset);
+                    } else {
+                        ps.setInt(1, limit);
+                        ps.setInt(2, offset);
+                    }
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            bookModel book = mapResultSetToBook(rs);
+                            booksList.add(book);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error listing books paginated: " + e.getMessage());
+        }
+
+        return booksList;
+    }
+
+    @Override
+    public int countBooks(String query) {
+        String sql;
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+
+        if (hasQuery) {
+            sql = "SELECT COUNT(*) FROM books WHERE title LIKE ? OR isbn LIKE ?";
+        } else {
+            sql = "SELECT COUNT(*) FROM books";
+        }
+        
+        int count = 0;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    
+                    if (hasQuery) {
+                        String likeQuery = "%" + query.trim() + "%";
+                        ps.setString(1, likeQuery);
+                        ps.setString(2, likeQuery);
+                    }
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            count = rs.getInt(1);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error counting books: " + e.getMessage());
+        }
+
+        return count;
+    }
+
+    @Override
+    public boolean checkIsbnExists(String isbn) {
+        String sql = "SELECT 1 FROM books WHERE isbn = ? LIMIT 1";
+        boolean exists = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, isbn);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        exists = rs.next();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking ISBN: " + e.getMessage());
+        }
+
+        return exists;
+    }
 }

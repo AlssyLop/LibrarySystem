@@ -11,4 +11,8 @@ public interface IBookDAO {
     boolean registerBook(bookModel book);
     bookModel searchBook(int idBook);
     List<bookModel> listBooks();
+    boolean updateBook(bookModel book);
+    List<bookModel> listBooksPaginated(int limit, int offset, String query);
+    int countBooks(String query);
+    boolean checkIsbnExists(String isbn);
 }
