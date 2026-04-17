@@ -59,7 +59,6 @@ src/main/resources/database.properties
 
 # Datos de prueba (archivos pesados generados)
 seed_data.sql
-generate_seed.py
 
 # Gemini / Agentes AI
 .agents/

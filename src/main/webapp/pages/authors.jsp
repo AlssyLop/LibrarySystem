@@ -61,6 +61,7 @@
                     <% } %>
                 </tbody>
             </table>
+        </div>
             
             <!-- Paginación -->
             <div class="pagination">
@@ -96,7 +97,6 @@
                    } 
                 %>
             </div>
-        </div>
     </main>
 
     <!-- Modals -->

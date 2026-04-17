@@ -48,7 +48,7 @@ public class BookServlet extends HttpServlet {
 
         if ("list".equals(action)) {
             int page = 1;
-            int limit = 20;
+            int limit = 15;
             String pageParam = request.getParameter("page");
             if (pageParam != null && !pageParam.isEmpty()) {
                 page = Integer.parseInt(pageParam);
