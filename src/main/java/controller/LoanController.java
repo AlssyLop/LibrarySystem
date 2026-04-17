@@ -46,11 +46,11 @@ public class LoanController {
         return loanDAO.countActiveLoans(idUserSearch, dateFilter);
     }
 
-    public List<loanModel> loanHistoryPaginated(int limit, int offset) {
-        return loanDAO.loanHistoryPaginated(limit, offset);
+    public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
+        return loanDAO.loanHistoryPaginated(limit, offset, idUserSearch, dateFilter);
     }
 
-    public int countHistoryLoans() {
-        return loanDAO.countHistoryLoans();
+    public int countHistoryLoans(Integer idUserSearch, Date dateFilter) {
+        return loanDAO.countHistoryLoans(idUserSearch, dateFilter);
     }
 }

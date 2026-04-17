@@ -195,16 +195,24 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<loanModel> loanHistoryPaginated(int limit, int offset) {
-        String sql = "SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans LIMIT ? OFFSET ?";
+    public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
+        StringBuilder sql = new StringBuilder("SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans WHERE 1=1");
+        if (idUserSearch != null) sql.append(" AND id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        sql.append(" LIMIT ? OFFSET ?");
+        
         List<loanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, limit);
-                    ps.setInt(2, offset);
+                try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                    int paramIndex = 1;
+                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null) ps.setDate(paramIndex++, dateFilter);
+                    ps.setInt(paramIndex++, limit);
+                    ps.setInt(paramIndex, offset);
+                    
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             loansList.add(mapResultSetToLoan(rs));
@@ -220,16 +228,24 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public int countHistoryLoans() {
-        String sql = "SELECT COUNT(*) FROM loans";
+    public int countHistoryLoans(Integer idUserSearch, Date dateFilter) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans WHERE 1=1");
+        if (idUserSearch != null) sql.append(" AND id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        
         int total = 0;
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                     ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        total = rs.getInt(1);
+                try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                    int paramIndex = 1;
+                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null) ps.setDate(paramIndex, dateFilter);
+                    
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            total = rs.getInt(1);
+                        }
                     }
                 }
             }

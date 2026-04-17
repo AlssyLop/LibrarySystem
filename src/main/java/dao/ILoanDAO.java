@@ -15,6 +15,6 @@ public interface ILoanDAO {
     List<loanModel> listActiveLoans();
     List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter);
     int countActiveLoans(Integer idUserSearch, Date dateFilter);
-    List<loanModel> loanHistoryPaginated(int limit, int offset);
-    int countHistoryLoans();
+    List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter);
+    int countHistoryLoans(Integer idUserSearch, Date dateFilter);
 }
