@@ -8,5 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Theme Anti-Flicker Script -->
+<script>
+    (function() {
+        const savedTheme = localStorage.getItem('theme');
+        const systemUsesDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemUsesDark)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+</script>
+
 <!-- Custom CSS -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/styles.css">

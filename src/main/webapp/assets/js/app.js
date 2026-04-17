@@ -2,6 +2,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Lucide icons
     lucide.createIcons();
 
+    // Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+
+    if (themeToggleBtn) {
+        // Initialize UI derived from the anti-flicker script in head
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            themeIcon.setAttribute('data-lucide', 'sun');
+            themeText.textContent = 'Modo Claro';
+            lucide.createIcons();
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update UI dynamically
+            if (newTheme === 'dark') {
+                themeIcon.setAttribute('data-lucide', 'sun');
+                themeText.textContent = 'Modo Claro';
+            } else {
+                themeIcon.setAttribute('data-lucide', 'moon');
+                themeText.textContent = 'Modo Oscuro';
+            }
+            lucide.createIcons();
+        });
+    }
+
     // Modal logic
     const modalContainers = document.querySelectorAll('.modal-overlay');
     const closeBtns = document.querySelectorAll('.close-modal');

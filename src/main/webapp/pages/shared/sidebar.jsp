@@ -31,4 +31,11 @@
             </a>
         </li>
     </ul>
+
+    <div class="sidebar-footer">
+        <button id="theme-toggle" class="btn-theme-toggle">
+            <i data-lucide="moon" id="theme-icon"></i>
+            <span id="theme-text">Modo Oscuro</span>
+        </button>
+    </div>
 </aside>
