@@ -42,23 +42,62 @@ loans          (id_loan PK, loan_date, return_date, id_user FK, id_book FK, retu
 
 ---
 
-## 🚀 Guía de Instalación y Despliegue (How-to)
+## Guía de Instalación y Despliegue
 
 Estos pasos explican cómo pasar de un entorno limpio a tener la aplicación completamente funcional en local.
 
 ### 1. Prerrequisitos de Entorno
 Asegúrate de contar con los siguientes elementos instalados y en el PATH de tu máquina:
-- **JDK 11** o superior.
+- **JDK 17**.
 - **Apache Maven 3.8** o superior.
 - **MySQL 8.0** o superior.
-- **Eclipse GlassFish 7.x** (Configurado con su dominio por defecto, `domain1`).
+- **Eclipse GlassFish 7.0.25** (Configurado con su dominio por defecto, `domain1`).
 
 ### 2. Configuración de Base de Datos
 Ingresa a tu gestor MySQL (línea de comandos o cliente visual) y crea el esquema:
 ```sql
 CREATE DATABASE DBlibrary;
+
+CREATE TABLE `users` (
+    id_user int NOT NULL AUTO_INCREMENT,
+    name varchar(100) DEFAULT NULL,
+    email varchar(100) DEFAULT NULL,
+    phone varchar(20) DEFAULT NULL,
+    activo bit(1) DEFAULT b'1',
+    PRIMARY KEY (id_user)
+);
+
+
+CREATE TABLE authors (
+	id_author INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(100),
+	nationality VARCHAR(50)
+);
+
+CREATE TABLE books (
+	id_book INT PRIMARY KEY AUTO_INCREMENT,
+	title VARCHAR(150),
+	isbn VARCHAR(20),
+	year INT,
+	id_author INT,
+	FOREIGN KEY (id_author) REFERENCES authors(id_author)
+);
+
+CREATE TABLE `loans` (
+    id_loan int NOT NULL AUTO_INCREMENT,
+    loan_date date DEFAULT NULL,
+    return_date date DEFAULT NULL,
+    id_user int DEFAULT NULL,
+    id_book int DEFAULT NULL,
+    returned bit(1) DEFAULT b'0',
+    PRIMARY KEY (id_loan),
+    KEY id_user (id_user),
+    KEY id_book (id_book),
+    CONSTRAINT loans_ibfk_1 FOREIGN KEY (`id_user`) REFERENCES users (id_user),
+    CONSTRAINT loans_ibfk_2 FOREIGN KEY (`id_book`) REFERENCES books (id_book)
+);
 ```
-*Atención: Asegúrate de configurar correctamente tus credenciales (usuario y contraseña locales) editando el archivo de conexión correspondiente en `database/ConnectionDB.java` o el respectivo bundle properties.*
+*Atención: Asegúrate de configurar correctamente tus credenciales (usuario y contraseña locales) editando el archivo de conexión correspondiente en `database/ConnectionDB.java` o el respectivo bundle properties `resources\database.properties.example`.*
 
 ### 3. Población de Datos (Opcional)
 Si deseas evitar un entorno vacío y probar la eficiencia con miles de datos, ejecuta nuestra simulación:
@@ -68,28 +107,9 @@ mysql -u root -p DBlibrary < seed_data.sql
 ```
 *(Carga un histórico base de 978 usuarios, 1256 autores, 4751 libros y 2791 préstamos).*
 
-### 4. Compilación del Sistema
-En la terminal, ubicado en la raíz del proyecto, ejecuta el gestor Maven:
-```bash
-mvn clean package
-```
-
-### 5. Despliegue hacia GlassFish
-Mediante el formato *Auto-deploy*:
-1. Copia el archivo empaquetado: `target/LibrarySystem-1.0-SNAPSHOT.war`.
-2. Pégalo dentro del directorio correspondiente: `glassfish7/glassfish/domains/domain1/autodeploy/`.
-
-*(Alternativa visual: Ingresa desde tu navegador a http://localhost:4848 y súbelo desde el menú de Applications).*
-
-### 6. Acceso al Sistema
-Abre un navegador (Chrome o Firefox recomendado) y dirígete a:
-```text
-http://localhost:8080/LibrarySystem/
-```
-
 ---
 
-## 📖 Funcionalidades y Optimizaciones (Explicación Contextual)
+## Funcionalidades y Optimizaciones
 
 ### 1. Resumen Estadístico (Dashboard)
 Es la página inicial del aplicativo. Expone métricas en tiempo real leyendo agregados globales para dar rápida visión operativa a administradores de recintos.
