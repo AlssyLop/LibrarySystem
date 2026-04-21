@@ -2,60 +2,106 @@ package controller;
 
 import dao.IUserDAO;
 import dao.impl.UserDAO;
-import java.util.List;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import model.userModel;
 
+import java.io.IOException;
+
 /**
- * Controlador para la entidad User
- * Intermediario entre la vista y el acceso a datos (DAO)
- * @author Usuario
+ * Servlet encargado del tráfico HTTP relacionado a los Usuarios
  */
-public class UserController {
-    
-    private IUserDAO userDAO;
+@WebServlet(name = "UserServlet", urlPatterns = { "/users" })
+public class UserController extends HttpServlet {
 
-    public UserController() {
-        // Instanciamos la implementación concreta
-        this.userDAO = new UserDAO();
+    private IUserDAO userDAO = new UserDAO();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+        if (action == null) {
+            action = "list";
+        }
+
+        if ("apiSearch".equals(action)) {
+            String query = request.getParameter("query");
+            if (query == null)
+                query = "";
+            java.util.List<model.userModel> usersList = this.userDAO.listUsersPaginated(10, 0, query);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            StringBuilder json = new StringBuilder("[");
+            for (int i = 0; i < usersList.size(); i++) {
+                model.userModel u = usersList.get(i);
+                json.append("{\"id\":").append(u.getIdUser()).append(",\"text\":\"").append(u.getIdUser()).append(" - ")
+                        .append(u.getName().replace("\"", "\\\"")).append("\"}");
+                if (i < usersList.size() - 1)
+                    json.append(",");
+            }
+            json.append("]");
+            response.getWriter().write(json.toString());
+            return;
+        }
+
+        if ("list".equals(action)) {
+            int page = 1;
+            int limit = 15;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.isEmpty()) {
+                page = Integer.parseInt(pageParam);
+            }
+            String query = request.getParameter("query");
+            if (query == null)
+                query = "";
+
+            int offset = (page - 1) * limit;
+
+            request.setAttribute("users", this.userDAO.listUsersPaginated(limit, offset, query));
+
+            int totalRecords = this.userDAO.countUsers(query);
+            int totalPages = (int) Math.ceil((double) totalRecords / limit);
+
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("query", query);
+
+            request.getRequestDispatcher("/pages/users.jsp").forward(request, response);
+
+        } else if ("delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            this.userDAO.deleteUser(id);
+            response.sendRedirect("users");
+        }
     }
 
-    /**
-     * Registra un nuevo usuario
-     */
-    public boolean registerUser(String name, String email, String phone) {
-        // Creamos el modelo (el id en 0 o cualquiera, la BD maneja el AUTO_INCREMENT)
-        userModel newUser = new userModel(0, name, email, phone);
-        return userDAO.registerUser(newUser);
-    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    /**
-     * Devuelve la lista de usuarios registrados
-     */
-    public List<userModel> listUsers() {
-        return userDAO.listUsers();
-    }
+        String action = request.getParameter("action");
 
-    /**
-     * Elimina un usuario por su ID
-     */
-    public boolean deleteUser(int idUser) {
-        return userDAO.deleteUser(idUser);
-    }
+        if ("register".equals(action)) {
+            String name = request.getParameter("name");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            userModel newUser = new userModel(0, name, email, phone);
+            this.userDAO.registerUser(newUser);
+            response.sendRedirect("users");
 
-    public boolean updateUser(int idUser, String name, String email, String phone) {
-        userModel user = new userModel(idUser, name, email, phone, true);
-        return userDAO.updateUser(user);
-    }
-
-    public userModel searchUser(int idUser) {
-        return userDAO.searchUser(idUser);
-    }
-
-    public List<userModel> listUsersPaginated(int limit, int offset, String query) {
-        return userDAO.listUsersPaginated(limit, offset, query);
-    }
-
-    public int countUsers(String query) {
-        return userDAO.countUsers(query);
+        } else if ("update".equals(action)) {
+            int idUser = Integer.parseInt(request.getParameter("idUser"));
+            String name = request.getParameter("name");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            userModel user = new userModel(idUser, name, email, phone, true);
+            this.userDAO.updateUser(user);
+            response.sendRedirect("users");
+        }
     }
 }

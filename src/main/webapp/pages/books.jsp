@@ -164,7 +164,10 @@
                 <div class="form-group autocomplete-container">
                     <label>Autor</label>
                     <input type="hidden" name="idAuthor" id="editBookAuthorId" required>
-                    <input type="text" class="form-control autocomplete-input" id="editBookAuthorText" data-endpoint="${pageContext.request.contextPath}/authors?action=apiSearch" data-target="editBookAuthorId" placeholder="Buscar autor..." required autocomplete="off">
+                    <input type="text" class="form-control autocomplete-input" 
+                           data-target="editBookAuthorId" 
+                           data-endpoint="${pageContext.request.contextPath}/authors?action=apiSearch" 
+                           placeholder="Buscar autor..." required autocomplete="off">
                     <div class="autocomplete-suggestions"></div>
                 </div>
                 <div style="text-align: right; margin-top:20px;">

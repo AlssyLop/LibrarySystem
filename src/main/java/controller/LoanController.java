@@ -2,55 +2,170 @@ package controller;
 
 import dao.ILoanDAO;
 import dao.impl.LoanDAO;
-import java.sql.Date;
-import java.util.List;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import model.loanModel;
 
+import java.io.IOException;
+import java.sql.Date;
+
 /**
- * Controlador para la entidad Loan
- * 
- * @author Usuario
+ * Servlet encargado del tráfico HTTP relacionado a los Préstamos
  */
-public class LoanController {
+@WebServlet(name = "LoanServlet", urlPatterns = { "/loans" })
+public class LoanController extends HttpServlet {
 
-    private ILoanDAO loanDAO;
+    private ILoanDAO loanDAO = new LoanDAO();
 
-    public LoanController() {
-        this.loanDAO = new LoanDAO();
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+        if (action == null) {
+            action = "list";
+        }
+
+        if ("list".equals(action)) {
+            int limit = 15;
+            int pageActive = 1;
+            int pageHistory = 1;
+
+            String pActive = request.getParameter("pageActive");
+            if (pActive != null && !pActive.isEmpty())
+                pageActive = Integer.parseInt(pActive);
+
+            String pHistory = request.getParameter("pageHistory");
+            if (pHistory != null && !pHistory.isEmpty())
+                pageHistory = Integer.parseInt(pHistory);
+
+            String activeTab = request.getParameter("tab");
+            if (activeTab == null)
+                activeTab = "actives";
+
+            // Extract filters for active tab
+            Integer idUserSearch = null;
+            String userSearchParam = request.getParameter("idUserSearch");
+            if (userSearchParam != null && !userSearchParam.trim().isEmpty()) {
+                try {
+                    idUserSearch = Integer.parseInt(userSearchParam.trim());
+                } catch (NumberFormatException e) {
+                }
+            }
+
+            Date dateFilter = null;
+            String dateParam = request.getParameter("dateFilter");
+            if (dateParam != null && !dateParam.trim().isEmpty()) {
+                dateFilter = Date.valueOf(dateParam.trim());
+            }
+
+            // Extract filters for history tab
+            Integer idUserSearchHist = null;
+            String userSearchHistParam = request.getParameter("idUserSearchHist");
+            if (userSearchHistParam != null && !userSearchHistParam.trim().isEmpty()) {
+                try {
+                    idUserSearchHist = Integer.parseInt(userSearchHistParam.trim());
+                } catch (NumberFormatException e) {
+                }
+            }
+
+            Date dateFilterHist = null;
+            String dateHistParam = request.getParameter("dateFilterHist");
+            if (dateHistParam != null && !dateHistParam.trim().isEmpty()) {
+                dateFilterHist = Date.valueOf(dateHistParam.trim());
+            }
+
+            int offsetActive = (pageActive - 1) * limit;
+            int offsetHistory = (pageHistory - 1) * limit;
+
+            request.setAttribute("activeLoans",
+                    this.loanDAO.listActiveLoansPaginated(limit, offsetActive, idUserSearch, dateFilter));
+            request.setAttribute("allLoans",
+                    this.loanDAO.loanHistoryPaginated(limit, offsetHistory, idUserSearchHist, dateFilterHist));
+
+            request.setAttribute("activeCurrentPage", pageActive);
+            request.setAttribute("historyCurrentPage", pageHistory);
+            request.setAttribute("activeTotalPages",
+                    (int) Math.ceil((double) this.loanDAO.countActiveLoans(idUserSearch, dateFilter) / limit));
+            request.setAttribute("historyTotalPages",
+                    (int) Math.ceil((double) this.loanDAO.countHistoryLoans(idUserSearchHist, dateFilterHist) / limit));
+            request.setAttribute("activeTab", activeTab);
+
+            // Preserve search state
+            request.setAttribute("idUserSearch", idUserSearch != null ? idUserSearch : "");
+            request.setAttribute("dateFilter", dateFilter != null ? dateFilter.toString() : "");
+            request.setAttribute("idUserSearchHist", idUserSearchHist != null ? idUserSearchHist : "");
+            request.setAttribute("dateFilterHist", dateFilterHist != null ? dateFilterHist.toString() : "");
+
+            request.getRequestDispatcher("/pages/loans.jsp").forward(request, response);
+        }
     }
 
-    public boolean registerLoan(Date loanDate, Date returnDate, int idUser, int idBook) {
-        // Al registrar un préstamo comúnmente no se tiene la fecha de devolución
-        // (returnDate es null)
-        loanModel newLoan = new loanModel(0, loanDate, returnDate, idUser, idBook);
-        return loanDAO.registerLoan(newLoan);
-    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    public boolean returnBook(int idLoan, Date returnDate) {
-        return loanDAO.returnBook(idLoan, returnDate);
-    }
+        String action = request.getParameter("action");
 
-    public List<loanModel> loanHistory() {
-        return loanDAO.loanHistory();
-    }
+        if ("registerAjax".equals(action)) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-    public List<loanModel> listActiveLoans() {
-        return loanDAO.listActiveLoans();
-    }
+            String idUserStr = request.getParameter("idUser");
+            String idBookStr = request.getParameter("idBook");
 
-    public List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        return loanDAO.listActiveLoansPaginated(limit, offset, idUserSearch, dateFilter);
-    }
+            if (idUserStr == null || idUserStr.trim().isEmpty() || idBookStr == null || idBookStr.trim().isEmpty()) {
+                response.getWriter()
+                        .write("{\"status\":\"error\",\"message\":\"Debe seleccionar un usuario y un libro.\"}");
+                return;
+            }
 
-    public int countActiveLoans(Integer idUserSearch, Date dateFilter) {
-        return loanDAO.countActiveLoans(idUserSearch, dateFilter);
-    }
+            try {
+                int idUser = Integer.parseInt(idUserStr.trim());
+                int idBook = Integer.parseInt(idBookStr.trim());
+                Date loanDate = new Date(System.currentTimeMillis());
 
-    public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        return loanDAO.loanHistoryPaginated(limit, offset, idUserSearch, dateFilter);
-    }
+                loanModel newLoan = new loanModel(0, loanDate, null, idUser, idBook);
+                boolean ok = this.loanDAO.registerLoan(newLoan);
+                if (ok) {
+                    response.getWriter()
+                            .write("{\"status\":\"success\",\"message\":\"Préstamo registrado exitosamente.\"}");
+                } else {
+                    response.getWriter()
+                            .write("{\"status\":\"error\",\"message\":\"Error al registrar el préstamo.\"}");
+                }
+            } catch (NumberFormatException e) {
+                response.getWriter()
+                        .write("{\"status\":\"error\",\"message\":\"Los IDs de usuario o libro no son válidos.\"}");
+            }
 
-    public int countHistoryLoans(Integer idUserSearch, Date dateFilter) {
-        return loanDAO.countHistoryLoans(idUserSearch, dateFilter);
+        } else if ("register".equals(action)) {
+            Date loanDate = new Date(System.currentTimeMillis());
+
+            String idUserStr = request.getParameter("idUser");
+            String idBookStr = request.getParameter("idBook");
+
+            if (idUserStr == null || idUserStr.isEmpty() || idBookStr == null || idBookStr.isEmpty()) {
+                response.sendRedirect("loans");
+                return;
+            }
+
+            int idUser = Integer.parseInt(idUserStr);
+            int idBook = Integer.parseInt(idBookStr);
+
+            loanModel newLoan = new loanModel(0, loanDate, null, idUser, idBook);
+            this.loanDAO.registerLoan(newLoan);
+            response.sendRedirect("loans");
+
+        } else if ("return".equals(action)) {
+            int idLoan = Integer.parseInt(request.getParameter("idLoan"));
+            Date returnDate = new Date(System.currentTimeMillis()); // Fecha actual de devolucion
+
+            this.loanDAO.returnBook(idLoan, returnDate);
+            response.sendRedirect("loans");
+        }
     }
 }

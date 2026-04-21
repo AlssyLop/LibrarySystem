@@ -173,7 +173,7 @@ function openBookEditModal(id, title, isbn, year, authorId) {
     document.getElementById('editBookTitle').value = title;
     document.getElementById('editBookIsbn').value = isbn;
     document.getElementById('editBookYear').value = year;
-    document.getElementById('editBookAuthor').value = authorId;
+    document.getElementById('editBookAuthorId').value = authorId;
     openModal('modalEditBook');
 }
 

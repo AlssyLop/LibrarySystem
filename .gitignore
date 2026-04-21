@@ -64,3 +64,4 @@ seed_data.sql
 .agents/
 .gemini/
 skills-lock.json
+GEMINI.md
