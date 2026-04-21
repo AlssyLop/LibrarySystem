@@ -85,10 +85,6 @@ public class BookController extends HttpServlet {
             handleRegisterAjax(request, response);
         } else if ("updateAjax".equals(action)) {
             handleUpdateAjax(request, response);
-        } else if ("register".equals(action)) {
-            handleRegister(request, response);
-        } else if ("update".equals(action)) {
-            handleUpdate(request, response);
         }
     }
 
@@ -137,30 +133,5 @@ public class BookController extends HttpServlet {
         } catch (Exception e) {
             response.getWriter().write("{\"status\":\"error\",\"message\":\"Error interno: " + e.getMessage() + "\"}");
         }
-    }
-
-    private void handleRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String title = request.getParameter("title");
-        String isbn = request.getParameter("isbn");
-        int year = Integer.parseInt(request.getParameter("year"));
-        int idAuthor = Integer.parseInt(request.getParameter("idAuthor"));
-
-        bookModel newBook = new bookModel(0, title, isbn, year, idAuthor);
-        this.bookDAO.registerBook(newBook);
-
-        response.sendRedirect("books");
-    }
-
-    private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int idBook = Integer.parseInt(request.getParameter("idBook"));
-        String title = request.getParameter("title");
-        String isbn = request.getParameter("isbn");
-        int year = Integer.parseInt(request.getParameter("year"));
-        int idAuthor = Integer.parseInt(request.getParameter("idAuthor"));
-
-        bookModel book = new bookModel(idBook, title, isbn, year, idAuthor);
-        this.bookDAO.updateBook(book);
-
-        response.sendRedirect("books");
     }
 }
