@@ -36,12 +36,16 @@ public class LoanDAO implements ILoanDAO {
         );
         
         try {
-            loan.setUserName(rs.getString("user_name"));
-        } catch (SQLException ignore) {}
+            loan.setUserName(rs.getString(7));
+        } catch (SQLException e) {
+            System.err.println("WARN (LoanDAO userName mapping flag): " + e.getMessage());
+        }
         
         try {
-            loan.setBookTitle(rs.getString("book_title"));
-        } catch (SQLException ignore) {}
+            loan.setBookTitle(rs.getString(8));
+        } catch (SQLException e) {
+            System.err.println("WARN (LoanDAO bookTitle mapping flag): " + e.getMessage());
+        }
 
         return loan;
     }
