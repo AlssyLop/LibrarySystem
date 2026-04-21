@@ -524,3 +524,45 @@ a {
   background-color: var(--accent-amber);
   color: #000;
 }
+
+/* Custom Combobox Dropdown */
+.combo-box-container {
+  position: relative;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  z-index: 100;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+  list-style: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+}
+
+[data-theme="dark"] .dropdown-list {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-list.active {
+  display: block;
+}
+
+.dropdown-list li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-list li:hover {
+  background-color: var(--accent-amber);
+  color: #000;
+}

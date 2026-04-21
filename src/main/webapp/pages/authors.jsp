@@ -115,7 +115,10 @@
                 </div>
                 <div class="form-group">
                     <label>Nacionalidad</label>
-                    <input type="text" name="nationality" class="form-control" required>
+                    <div class="combo-box-container">
+                        <input type="text" name="nationality" class="form-control" autocomplete="off" required>
+                        <ul class="dropdown-list"></ul>
+                    </div>
                 </div>
                 <div style="text-align: right; margin-top:20px;">
                     <button type="submit" class="btn btn-primary">Guardar</button>
@@ -140,7 +143,10 @@
                 </div>
                 <div class="form-group">
                     <label>Nacionalidad</label>
-                    <input type="text" name="nationality" id="editAuthorNationality" class="form-control" required>
+                    <div class="combo-box-container">
+                        <input type="text" name="nationality" id="editAuthorNationality" class="form-control" autocomplete="off" required>
+                        <ul class="dropdown-list"></ul>
+                    </div>
                 </div>
                 <div style="text-align: right; margin-top:20px;">
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -149,6 +155,76 @@
         </div>
     </div>
 
+    <script>
+        const nationalitiesData = [
+            <%
+                java.util.List<String> nationalities = (java.util.List<String>) request.getAttribute("nationalities");
+                if (nationalities != null) {
+                    for (int i = 0; i < nationalities.size(); i++) {
+                        out.print("\"" + nationalities.get(i).replace("\"", "\\\"") + "\"");
+                        if (i < nationalities.size() - 1) out.print(",");
+                    }
+                }
+            %>
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function setupCombobox(container) {
+                const input = container.querySelector('input[name="nationality"]');
+                const list = container.querySelector('.dropdown-list');
+                
+                function renderList(query = '') {
+                    list.innerHTML = '';
+                    const lowerQuery = query.toLowerCase();
+                    const filtered = nationalitiesData.filter(n => n.toLowerCase().includes(lowerQuery));
+                    
+                    filtered.forEach(n => {
+                        const li = document.createElement('li');
+                        li.textContent = n;
+                        li.addEventListener('click', function() {
+                            input.value = n;
+                            list.classList.remove('active');
+                        });
+                        list.appendChild(li);
+                    });
+                }
+                
+                input.addEventListener('focus', function() {
+                    renderList(input.value);
+                    list.classList.add('active');
+                });
+                
+                input.addEventListener('input', function() {
+                    renderList(input.value);
+                    list.classList.add('active');
+                });
+                
+                // Hide list when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!container.contains(e.target)) {
+                        list.classList.remove('active');
+                    }
+                });
+                // Form validation on submit
+                const form = input.closest('form');
+                if(form) {
+                    form.addEventListener('submit', function(e) {
+                        const val = input.value.trim();
+                        const exists = nationalitiesData.find(n => n.toLowerCase() === val.toLowerCase());
+                        if(!exists) {
+                            input.value = '';
+                            e.preventDefault();
+                            alert('Por favor, selecciona una nacionalidad válida del listado.');
+                        } else {
+                            input.value = exists; // ensure exact casing
+                        }
+                    });
+                }
+            }
+            
+            document.querySelectorAll('.combo-box-container').forEach(setupCombobox);
+        });
+    </script>
     <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 </body>
 </html>

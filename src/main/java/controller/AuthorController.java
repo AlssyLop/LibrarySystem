@@ -9,6 +9,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Locale;
 
 /**
  * Servlet encargado del tráfico HTTP relacionado a Autores
@@ -69,6 +72,16 @@ public class AuthorController extends HttpServlet {
             request.setAttribute("currentPage", page);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("query", query);
+
+            // Generar listado de nacionalidades
+            String[] paisesCodigos = Locale.getISOCountries();
+            ArrayList<String> nacionalidades = new ArrayList<>();
+            for (String codigo : paisesCodigos) {
+                Locale locale = new Locale("", codigo);
+                nacionalidades.add(locale.getDisplayCountry(new Locale("es", "ES")));
+            }
+            Collections.sort(nacionalidades);
+            request.setAttribute("nationalities", nacionalidades);
 
             request.getRequestDispatcher("/pages/authors.jsp").forward(request, response);
         }
