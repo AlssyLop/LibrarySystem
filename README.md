@@ -26,8 +26,7 @@ Esta sección detalla los componentes técnicos y la arquitectura principal del 
 El proyecto mantiene una estricta separación de responsabilidades:
 
 *   **`webapp/pages/` (Vistas):** Documentos JSP reusables para la interfaz gráfica y layouts como modales o cabeceras estáticas.
-*   **`servlet/` (Controladores HTTP):** Componentes (`HttpServlet`) destinados a la recepción de peticiones (GET/POST), redirecciones y respuesta de JSON.
-*   **`controller/` (Lógica de Negocio):** Actúa como orquestador, evaluando reglas antes de pedir y entregar datos.
+*   **`controller/` (Controladores):** Componentes (`HttpServlet`) que actúan como orquestadores del sistema, manejando peticiones HTTP (GET/POST), evaluando reglas de negocio y entregando respuestas (JSP o JSON).
 *   **`dao/` y `dao/impl/` (Acceso a Datos):** Interfaces de abstracción y sus implementaciones concretas de JDBC usando conectividad controlada por `PreparedStatement`.
 *   **`model/` (Entidades):** Objetos de transferencia o de valor que representan tablas únicas (Usuario, Libro, Préstamo).
 
