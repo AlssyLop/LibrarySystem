@@ -1,18 +1,18 @@
 # LibrarySystem 📚
 
-LibrarySystem es un sistema de gestión de bibliotecas para entornos académicos. Desarrollado con **Jakarta EE 10** y diseñado para **Eclipse GlassFish 7**, permite la administración eficiente de usuarios, autores, libros y préstamos mediante una interfaz web moderna, responsiva y optimizada para operar con grandes volúmenes de datos.
+LibrarySystem es un sistema de gestión de bibliotecas para entornos académicos. Desarrollado con **Jakarta EE 10** y diseñado para **Eclipse GlassFish 7**, permite la administración de usuarios, autores, libros y préstamos.
 
 ---
 
 ## 🛠️ Referencia Técnica
 
-Esta sección detalla los componentes técnicos y la arquitectura principal del sistema, sirviendo como mapa general para desarrolladores.
+Esta sección detalla los componentes técnicos y la arquitectura principal del sistema.
 
 ### Stack Tecnológico
 
 | Componente | Tecnología |
 |------------|------------|
-| **Lenguaje principal** | Java 11 |
+| **Lenguaje principal** | Java 17 |
 | **Plataforma Enterprise**| Jakarta EE 10 (Servlets y plantillas JSP) |
 | **Servidor de Apps** | Eclipse GlassFish 7.0.25 |
 | **Base de Datos** | MySQL 8.0 |
@@ -29,6 +29,8 @@ El proyecto mantiene una estricta separación de responsabilidades:
 *   **`controller/` (Controladores):** Componentes (`HttpServlet`) que actúan como orquestadores del sistema, manejando peticiones HTTP (GET/POST), evaluando reglas de negocio y entregando respuestas (JSP o JSON).
 *   **`dao/` y `dao/impl/` (Acceso a Datos):** Interfaces de abstracción y sus implementaciones concretas de JDBC usando conectividad controlada por `PreparedStatement`.
 *   **`model/` (Entidades):** Objetos de transferencia o de valor que representan tablas únicas (Usuario, Libro, Préstamo).
+
+![alt text](diagramLibrarySystemMVC.png)
 
 ### Esquema de la Base de Datos Relacional
 
@@ -102,7 +104,6 @@ CREATE TABLE `loans` (
 Si deseas evitar un entorno vacío y probar la eficiencia con miles de datos, ejecuta nuestra simulación:
 ```bash
 python generate_seed.py
-mysql -u root -p DBlibrary < seed_data.sql
 ```
 *(Carga un histórico base de 978 usuarios, 1256 autores, 4751 libros y 2791 préstamos).*
 
@@ -130,12 +131,32 @@ Permite filtros combinados que ajustan iterativamente un `StringBuilder` en SQL,
 
 ### Endpoints AJAX 
 Como referencia de la API reactiva interna que posee el sistema (Devuelve respuestas asíncronas tipo JSON al cliente JavaScript HTML):
-*   `GET /users?action=apiSearch&query=...`
-*   `GET /authors?action=apiSearch&query=...`
-*   `GET /books?action=apiSearch&query=...`
-*   `POST /books` + variable body `action=registerAjax` o `action=updateAjax`.
-*   `POST /loans` + variable body `action=registerAjax`.
 
+#### 1. Buscar Usuarios
+*   `GET /users?action=apiSearch&query=...`
+
+#### 2. Buscar Autores
+*   `GET /authors?action=apiSearch&query=...`
+
+#### 3. Buscar Libros
+*   `GET /books?action=apiSearch&query=...`
+
+#### 4. Registrar/Actualizar Libro (AJAX)
+*   `POST /books`
+    `Content-Type: application/x-www-form-urlencoded`
+    `action=registerAjax` ó `action=updateAjax`
+    `&title=Nuevo Libro Test`
+    `&isbn=999-888-777`
+    `&year=2024`
+    `&idAuthor=1.`
+    
+
+#### 5. Registrar Préstamo (AJAX)
+*   `POST /loans`
+    `Content-Type: application/x-www-form-urlencoded`
+    `action=registerAjax`
+    `&idUser=1`
+    `&idBook=1`
 ---
 
 ## 📄 Licencia
