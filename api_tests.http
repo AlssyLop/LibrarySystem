@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:8080
+
+### 1. Buscar Usuarios (JSON)
+GET {{baseUrl}}/users?action=apiSearch&query=Usuario 
+Accept: application/json
+
+### 2. Buscar Autores (JSON)
+GET {{baseUrl}}/authors?action=apiSearch&query=Autor
+Accept: application/json
+
+### 3. Buscar Libros (JSON)
+GET {{baseUrl}}/books?action=apiSearch&query=Libro
+Accept: application/json
+
+### 4. Registrar Libro (AJAX)
+# Nota: idAuthor debe existir en la base de datos
+POST {{baseUrl}}/books
+Content-Type: application/x-www-form-urlencoded
+
+action=registerAjax
+&title=Nuevo Libro Test
+&isbn=999-888-777
+&year=2024
+&idAuthor=1
+
+### 5. Actualizar Libro (AJAX)
+# Nota: idBook e idAuthor deben ser válidos
+POST {{baseUrl}}/books
+Content-Type: application/x-www-form-urlencoded
+
+action=updateAjax
+&idBook=1
+&title=Título Modificado
+&isbn=999-888-777
+&year=2025
+&idAuthor=1
+
+### 6. Registrar Préstamo (AJAX)
+# Nota: idUser e idBook deben ser válidos
+POST {{baseUrl}}/loans
+Content-Type: application/x-www-form-urlencoded
+
+action=registerAjax
+&idUser=1
+&idBook=1
