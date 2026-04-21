@@ -30,7 +30,7 @@ with open("seed_data.sql", "w", encoding="utf-8") as f:
     # Generate Authors
     f.write("-- Insert Authors\n")
     authors_values = []
-    nationalities = ["Mexicana", "Espanola", "Argentina", "Colombiana", "Chilena", "Estadounidense", "Britanica", "Japonesa"]
+    nationalities = ["República Dominicana", "Afganistán", "Bolivia", "Colombia", "Chile", "Angola"]
     for i in range(1, NUM_AUTHORS + 1):
         name = f"Autor_{i}"
         nationality = random.choice(nationalities)

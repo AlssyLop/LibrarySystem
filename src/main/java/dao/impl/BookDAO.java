@@ -25,9 +25,10 @@ public class BookDAO implements IBookDAO {
             rs.getInt("id_author")
         );
         try {
-            b.setAuthorName(rs.getString(6));
-        } catch (SQLException e) {
-            System.err.println("WARN (BookDAO authorName mapping flag): " + e.getMessage());
+            String an = rs.getString(6);
+            b.setAuthorName(an != null ? an : "NULL_DB");
+        } catch (Exception e) {
+            b.setAuthorName("ERR: " + e.getMessage());
         }
         return b;
     }

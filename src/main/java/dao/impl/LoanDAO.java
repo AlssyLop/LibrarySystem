@@ -17,7 +17,6 @@ import model.loanModel;
  */
 public class LoanDAO implements ILoanDAO {
 
-    // Centralized mapping from ResultSet to loanModel object
     private loanModel mapResultSetToLoan(ResultSet rs) throws SQLException {
         boolean returned = false;
         try {
@@ -25,26 +24,27 @@ public class LoanDAO implements ILoanDAO {
         } catch (SQLException e) {
             // Ignorar si no viene en todas las consultas
         }
-        
+
         loanModel loan = new loanModel(
-            rs.getInt("id_loan"),
-            rs.getDate("loan_date"),
-            rs.getDate("return_date"),
-            rs.getInt("id_user"),
-            rs.getInt("id_book"),
-            returned
-        );
-        
+                rs.getInt("id_loan"),
+                rs.getDate("loan_date"),
+                rs.getDate("return_date"),
+                rs.getInt("id_user"),
+                rs.getInt("id_book"),
+                returned);
+
         try {
-            loan.setUserName(rs.getString(7));
-        } catch (SQLException e) {
-            System.err.println("WARN (LoanDAO userName mapping flag): " + e.getMessage());
+            String un = rs.getString(7);
+            loan.setUserName(un != null ? un : "NULL_DB");
+        } catch (Exception e) {
+            loan.setUserName("ERR: " + e.getMessage());
         }
-        
+
         try {
-            loan.setBookTitle(rs.getString(8));
-        } catch (SQLException e) {
-            System.err.println("WARN (LoanDAO bookTitle mapping flag): " + e.getMessage());
+            String bt = rs.getString(8);
+            loan.setBookTitle(bt != null ? bt : "NULL_DB");
+        } catch (Exception e) {
+            loan.setBookTitle("ERR: " + e.getMessage());
         }
 
         return loan;
@@ -102,16 +102,16 @@ public class LoanDAO implements ILoanDAO {
     @Override
     public List<loanModel> loanHistory() {
         String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                     "u.name AS user_name, b.title AS book_title " +
-                     "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book";
+                "u.name AS user_name, b.title AS book_title " +
+                "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book";
         List<loanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql);
-                     ResultSet rs = ps.executeQuery()) {
-                    
+                        ResultSet rs = ps.executeQuery()) {
+
                     while (rs.next()) {
                         loanModel loan = mapResultSetToLoan(rs);
                         loansList.add(loan);
@@ -128,17 +128,17 @@ public class LoanDAO implements ILoanDAO {
     @Override
     public List<loanModel> listActiveLoans() {
         String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                     "u.name AS user_name, b.title AS book_title " +
-                     "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
-                     "WHERE l.returned = 0";
+                "u.name AS user_name, b.title AS book_title " +
+                "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
+                "WHERE l.returned = 0";
         List<loanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql);
-                     ResultSet rs = ps.executeQuery()) {
-                    
+                        ResultSet rs = ps.executeQuery()) {
+
                     while (rs.next()) {
                         loanModel loan = mapResultSetToLoan(rs);
                         loansList.add(loan);
@@ -154,14 +154,18 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                                              "u.name AS user_name, b.title AS book_title " +
-                                              "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
-                                              "WHERE l.returned = 0");
-        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
+        StringBuilder sql = new StringBuilder(
+                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                        "u.name AS user_name, b.title AS book_title " +
+                        "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                        +
+                        "WHERE l.returned = 0");
+        if (idUserSearch != null)
+            sql.append(" AND l.id_user = ?");
+        if (dateFilter != null)
+            sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
-        
+
         List<loanModel> loansList = new ArrayList<>();
 
         try {
@@ -169,11 +173,13 @@ public class LoanDAO implements ILoanDAO {
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
                     int paramIndex = 1;
-                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
-                    if (dateFilter != null) ps.setDate(paramIndex++, dateFilter);
+                    if (idUserSearch != null)
+                        ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null)
+                        ps.setDate(paramIndex++, dateFilter);
                     ps.setInt(paramIndex++, limit);
                     ps.setInt(paramIndex, offset);
-                    
+
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             loansList.add(mapResultSetToLoan(rs));
@@ -191,18 +197,22 @@ public class LoanDAO implements ILoanDAO {
     @Override
     public int countActiveLoans(Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans l WHERE l.returned = 0");
-        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
-        
+        if (idUserSearch != null)
+            sql.append(" AND l.id_user = ?");
+        if (dateFilter != null)
+            sql.append(" AND DATE(l.loan_date) = ?");
+
         int total = 0;
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
                     int paramIndex = 1;
-                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
-                    if (dateFilter != null) ps.setDate(paramIndex, dateFilter);
-                    
+                    if (idUserSearch != null)
+                        ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null)
+                        ps.setDate(paramIndex, dateFilter);
+
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
                             total = rs.getInt(1);
@@ -218,14 +228,18 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                                              "u.name AS user_name, b.title AS book_title " +
-                                              "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
-                                              "WHERE 1=1");
-        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
+        StringBuilder sql = new StringBuilder(
+                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                        "u.name AS user_name, b.title AS book_title " +
+                        "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                        +
+                        "WHERE 1=1");
+        if (idUserSearch != null)
+            sql.append(" AND l.id_user = ?");
+        if (dateFilter != null)
+            sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
-        
+
         List<loanModel> loansList = new ArrayList<>();
 
         try {
@@ -233,11 +247,13 @@ public class LoanDAO implements ILoanDAO {
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
                     int paramIndex = 1;
-                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
-                    if (dateFilter != null) ps.setDate(paramIndex++, dateFilter);
+                    if (idUserSearch != null)
+                        ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null)
+                        ps.setDate(paramIndex++, dateFilter);
                     ps.setInt(paramIndex++, limit);
                     ps.setInt(paramIndex, offset);
-                    
+
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             loansList.add(mapResultSetToLoan(rs));
@@ -255,18 +271,22 @@ public class LoanDAO implements ILoanDAO {
     @Override
     public int countHistoryLoans(Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans l WHERE 1=1");
-        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
-        
+        if (idUserSearch != null)
+            sql.append(" AND l.id_user = ?");
+        if (dateFilter != null)
+            sql.append(" AND DATE(l.loan_date) = ?");
+
         int total = 0;
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
                     int paramIndex = 1;
-                    if (idUserSearch != null) ps.setInt(paramIndex++, idUserSearch);
-                    if (dateFilter != null) ps.setDate(paramIndex, dateFilter);
-                    
+                    if (idUserSearch != null)
+                        ps.setInt(paramIndex++, idUserSearch);
+                    if (dateFilter != null)
+                        ps.setDate(paramIndex, dateFilter);
+
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
                             total = rs.getInt(1);
