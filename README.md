@@ -34,12 +34,7 @@ El proyecto mantiene una estricta separación de responsabilidades:
 
 ### Esquema de la Base de Datos Relacional
 
-```text
-users          (id_user PK, name, email, phone, activo)
-authors        (id_author PK, name, nationality)
-books          (id_book PK, title, isbn, year, id_author FK)
-loans          (id_loan PK, loan_date, return_date, id_user FK, id_book FK, returned)
-```
+![alt text](schemaDB.png)
 
 ---
 
