@@ -18,18 +18,16 @@ public class BookDAO implements IBookDAO {
 
     private bookModel mapResultSetToBook(ResultSet rs) throws SQLException {
         bookModel b = new bookModel(
-            rs.getInt("id_book"),
-            rs.getString("title"),
-            rs.getString("isbn"),
-            rs.getInt("year"),
-            rs.getInt("id_author")
-        );
+                rs.getInt("id_book"),
+                rs.getString("title"),
+                rs.getString("isbn"),
+                rs.getInt("year"),
+                rs.getInt("id_author"));
+                
         try {
-            String an = rs.getString(6);
-            b.setAuthorName(an != null ? an : "NULL_DB");
-        } catch (Exception e) {
-            b.setAuthorName("ERR: " + e.getMessage());
-        }
+            b.setAuthorName(rs.getString(6));
+        } catch (SQLException ignore) {}
+        
         return b;
     }
 
@@ -61,7 +59,7 @@ public class BookDAO implements IBookDAO {
     @Override
     public bookModel searchBook(int idBook) {
         String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                     "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author WHERE b.id_book = ?";
+                "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author WHERE b.id_book = ?";
         bookModel book = null;
 
         try {
@@ -87,15 +85,15 @@ public class BookDAO implements IBookDAO {
     @Override
     public List<bookModel> listBooks() {
         String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                     "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author";
+                "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author";
         List<bookModel> booksList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql);
-                     ResultSet rs = ps.executeQuery()) {
-                    
+                        ResultSet rs = ps.executeQuery()) {
+
                     while (rs.next()) {
                         bookModel book = mapResultSetToBook(rs);
                         booksList.add(book);
@@ -141,21 +139,21 @@ public class BookDAO implements IBookDAO {
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
         if (hasQuery) {
-            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " + 
-                  "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author " +
-                  "WHERE b.title LIKE ? OR b.isbn LIKE ? LIMIT ? OFFSET ?";
+            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
+                    "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author " +
+                    "WHERE b.title LIKE ? OR b.isbn LIKE ? LIMIT ? OFFSET ?";
         } else {
             sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                  "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author LIMIT ? OFFSET ?";
+                    "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author LIMIT ? OFFSET ?";
         }
-        
+
         List<bookModel> booksList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    
+
                     if (hasQuery) {
                         String likeQuery = "%" + query.trim() + "%";
                         ps.setString(1, likeQuery);
@@ -192,14 +190,14 @@ public class BookDAO implements IBookDAO {
         } else {
             sql = "SELECT COUNT(*) FROM books";
         }
-        
+
         int count = 0;
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    
+
                     if (hasQuery) {
                         String likeQuery = "%" + query.trim() + "%";
                         ps.setString(1, likeQuery);

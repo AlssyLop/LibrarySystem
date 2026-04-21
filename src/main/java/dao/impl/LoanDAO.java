@@ -34,18 +34,12 @@ public class LoanDAO implements ILoanDAO {
                 returned);
 
         try {
-            String un = rs.getString(7);
-            loan.setUserName(un != null ? un : "NULL_DB");
-        } catch (Exception e) {
-            loan.setUserName("ERR: " + e.getMessage());
-        }
+            loan.setUserName(rs.getString(7));
+        } catch (SQLException ignore) {}
 
         try {
-            String bt = rs.getString(8);
-            loan.setBookTitle(bt != null ? bt : "NULL_DB");
-        } catch (Exception e) {
-            loan.setBookTitle("ERR: " + e.getMessage());
-        }
+            loan.setBookTitle(rs.getString(8));
+        } catch (SQLException ignore) {}
 
         return loan;
     }
