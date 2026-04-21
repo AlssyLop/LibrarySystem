@@ -16,15 +16,18 @@ import model.bookModel;
  */
 public class BookDAO implements IBookDAO {
 
-    // Centralized mapping from ResultSet to bookModel object
     private bookModel mapResultSetToBook(ResultSet rs) throws SQLException {
-        return new bookModel(
+        bookModel b = new bookModel(
             rs.getInt("id_book"),
             rs.getString("title"),
             rs.getString("isbn"),
             rs.getInt("year"),
             rs.getInt("id_author")
         );
+        try {
+            b.setAuthorName(rs.getString("author_name"));
+        } catch (SQLException ignore) {}
+        return b;
     }
 
     @Override
@@ -54,7 +57,8 @@ public class BookDAO implements IBookDAO {
 
     @Override
     public bookModel searchBook(int idBook) {
-        String sql = "SELECT id_book, title, isbn, year, id_author FROM books WHERE id_book = ?";
+        String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
+                     "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author WHERE b.id_book = ?";
         bookModel book = null;
 
         try {
@@ -79,7 +83,8 @@ public class BookDAO implements IBookDAO {
 
     @Override
     public List<bookModel> listBooks() {
-        String sql = "SELECT id_book, title, isbn, year, id_author FROM books";
+        String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
+                     "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author";
         List<bookModel> booksList = new ArrayList<>();
 
         try {
@@ -133,9 +138,12 @@ public class BookDAO implements IBookDAO {
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
         if (hasQuery) {
-            sql = "SELECT id_book, title, isbn, year, id_author FROM books WHERE title LIKE ? OR isbn LIKE ? LIMIT ? OFFSET ?";
+            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " + 
+                  "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author " +
+                  "WHERE b.title LIKE ? OR b.isbn LIKE ? LIMIT ? OFFSET ?";
         } else {
-            sql = "SELECT id_book, title, isbn, year, id_author FROM books LIMIT ? OFFSET ?";
+            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
+                  "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author LIMIT ? OFFSET ?";
         }
         
         List<bookModel> booksList = new ArrayList<>();

@@ -13,6 +13,10 @@ public class loanModel {
     private int idUser;
     private int idBook;
     private boolean returned;
+    
+    // Campos extra para mostrar detalles en las vistas
+    private String userName;
+    private String bookTitle;
 
     public loanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook, boolean returned) {
         this.idLoan = idLoan;
@@ -78,5 +82,21 @@ public class loanModel {
 
     public void setReturned(boolean returned) {
         this.returned = returned;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
     }
 }

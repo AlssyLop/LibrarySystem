@@ -10,6 +10,9 @@ public class bookModel {
     private String isbn;
     private int year;
     private int idAuthor;
+    
+    // Campo extra para mostrar el nombre en las vistas
+    private String authorName;
 
     public bookModel(int idBook, String title, String isbn, int year, int idAuthor) {
         this.idBook = idBook;
@@ -57,5 +60,13 @@ public class bookModel {
 
     public void setIdAuthor(int idAuthor) {
         this.idAuthor = idAuthor;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 }

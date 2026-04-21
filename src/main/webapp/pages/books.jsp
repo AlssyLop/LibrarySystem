@@ -32,7 +32,7 @@
                         <th>Título</th>
                         <th>ISBN</th>
                         <th>Año</th>
-                        <th>ID Autor</th>
+                        <th>Autor</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -47,7 +47,7 @@
                         <td><%= b.getTitle() %></td>
                         <td><%= b.getIsbn() %></td>
                         <td><%= b.getYear() %></td>
-                        <td><%= b.getIdAuthor() %></td>
+                        <td><%= b.getAuthorName() != null ? b.getAuthorName() : "ID: " + b.getIdAuthor() %></td>
                         <td>
                             <div class="actions-col">
                                 <button class="btn-icon amber" onclick="openBookEditModal(<%= b.getIdBook() %>, '<%= b.getTitle().replace("'", "\\'") %>', '<%= b.getIsbn() %>', <%= b.getYear() %>, <%= b.getIdAuthor() %>)">

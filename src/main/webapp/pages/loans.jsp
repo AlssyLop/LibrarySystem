@@ -49,8 +49,8 @@
                         <tr>
                             <th>ID Préstamo</th>
                             <th>Fecha Préstamo</th>
-                            <th>ID Usuario</th>
-                            <th>ID Libro</th>
+                            <th>Usuario</th>
+                            <th>Libro</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -64,8 +64,8 @@
                         <tr>
                             <td><%= l.getIdLoan() %></td>
                             <td><%= l.getLoanDate() %></td>
-                            <td><%= l.getIdUser() %></td>
-                            <td><%= l.getIdBook() %></td>
+                            <td><%= l.getUserName() != null ? l.getUserName() : "ID: " + l.getIdUser() %></td>
+                            <td><%= l.getBookTitle() != null ? l.getBookTitle() : "ID: " + l.getIdBook() %></td>
                             <td><span class="badge badge-warning">Pendiente</span></td>
                             <td>
                                 <div class="actions-col">
@@ -142,8 +142,8 @@
                             <th>ID Préstamo</th>
                             <th>Fecha Préstamo</th>
                             <th>Fecha Devolución</th>
-                            <th>ID Usuario</th>
-                            <th>ID Libro</th>
+                            <th>Usuario</th>
+                            <th>Libro</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
@@ -157,8 +157,8 @@
                             <td><%= l.getIdLoan() %></td>
                             <td><%= l.getLoanDate() %></td>
                             <td><%= (l.getReturnDate() != null) ? l.getReturnDate() : "-" %></td>
-                            <td><%= l.getIdUser() %></td>
-                            <td><%= l.getIdBook() %></td>
+                            <td><%= l.getUserName() != null ? l.getUserName() : "ID: " + l.getIdUser() %></td>
+                            <td><%= l.getBookTitle() != null ? l.getBookTitle() : "ID: " + l.getIdBook() %></td>
                             <td>
                                 <% if (l.isReturned()) { %>
                                     <span class="badge badge-success">Devuelto</span>

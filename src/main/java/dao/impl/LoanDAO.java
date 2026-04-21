@@ -26,7 +26,7 @@ public class LoanDAO implements ILoanDAO {
             // Ignorar si no viene en todas las consultas
         }
         
-        return new loanModel(
+        loanModel loan = new loanModel(
             rs.getInt("id_loan"),
             rs.getDate("loan_date"),
             rs.getDate("return_date"),
@@ -34,6 +34,16 @@ public class LoanDAO implements ILoanDAO {
             rs.getInt("id_book"),
             returned
         );
+        
+        try {
+            loan.setUserName(rs.getString("user_name"));
+        } catch (SQLException ignore) {}
+        
+        try {
+            loan.setBookTitle(rs.getString("book_title"));
+        } catch (SQLException ignore) {}
+
+        return loan;
     }
 
     @Override
@@ -87,7 +97,9 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> loanHistory() {
-        String sql = "SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans";
+        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                     "u.name AS user_name, b.title AS book_title " +
+                     "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book";
         List<loanModel> loansList = new ArrayList<>();
 
         try {
@@ -111,7 +123,10 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> listActiveLoans() {
-        String sql = "SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans WHERE returned = 0";
+        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                     "u.name AS user_name, b.title AS book_title " +
+                     "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
+                     "WHERE l.returned = 0";
         List<loanModel> loansList = new ArrayList<>();
 
         try {
@@ -135,9 +150,12 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans WHERE returned = 0");
-        if (idUserSearch != null) sql.append(" AND id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        StringBuilder sql = new StringBuilder("SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                                              "u.name AS user_name, b.title AS book_title " +
+                                              "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
+                                              "WHERE l.returned = 0");
+        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
         
         List<loanModel> loansList = new ArrayList<>();
@@ -168,9 +186,9 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public int countActiveLoans(Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans WHERE returned = 0");
-        if (idUserSearch != null) sql.append(" AND id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans l WHERE l.returned = 0");
+        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
         
         int total = 0;
         try {
@@ -196,9 +214,12 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT id_loan, loan_date, return_date, id_user, id_book, returned FROM loans WHERE 1=1");
-        if (idUserSearch != null) sql.append(" AND id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        StringBuilder sql = new StringBuilder("SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
+                                              "u.name AS user_name, b.title AS book_title " +
+                                              "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
+                                              "WHERE 1=1");
+        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
         
         List<loanModel> loansList = new ArrayList<>();
@@ -229,9 +250,9 @@ public class LoanDAO implements ILoanDAO {
 
     @Override
     public int countHistoryLoans(Integer idUserSearch, Date dateFilter) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans WHERE 1=1");
-        if (idUserSearch != null) sql.append(" AND id_user = ?");
-        if (dateFilter != null) sql.append(" AND DATE(loan_date) = ?");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM loans l WHERE 1=1");
+        if (idUserSearch != null) sql.append(" AND l.id_user = ?");
+        if (dateFilter != null) sql.append(" AND DATE(l.loan_date) = ?");
         
         int total = 0;
         try {
