@@ -30,11 +30,11 @@ El proyecto mantiene una estricta separación de responsabilidades:
 *   **`dao/` y `dao/impl/` (Acceso a Datos):** Interfaces de abstracción y sus implementaciones concretas de JDBC usando conectividad controlada por `PreparedStatement`.
 *   **`model/` (Entidades):** Objetos de transferencia o de valor que representan tablas únicas (Usuario, Libro, Préstamo).
 
-![alt text](diagramLibrarySystemMVC.png)
+![alt text](images/diagramLibrarySystemMVC.png)
 
 ### Esquema de la Base de Datos Relacional
 
-![alt text](schemaDB.png)
+![alt text](images/schemaDB.png)
 
 ---
 
@@ -109,6 +109,8 @@ python generate_seed.py
 ### 1. Resumen Estadístico (Dashboard)
 Es la página inicial del aplicativo. Expone métricas en tiempo real leyendo agregados globales para dar rápida visión operativa a administradores de recintos.
 
+![alt text](images/dashboard.png)
+
 ### 2. Listados Inteligentes (Usuarios y Autores)
 Para evitar bloqueos al cargar grandes volúmenes de datos en una sola petición web:
 *   Se limitó la consulta inicial (ej. 20 resultados).
@@ -116,13 +118,20 @@ Para evitar bloqueos al cargar grandes volúmenes de datos en una sola petición
 *   Las búsquedas operan del lado del servidor SQL (`LIKE %query%`) en lugar de sobrecargar memoria RAM filtrando listas inmensas desde el backend Java.
 *   *Nota en Usuarios:* Tienen eliminación "lógica". El usuario es desmarcado a falso mediante el atributo `activo` sin destruir compromisos de préstamos existentes.
 
+![alt text](images/users.png)
+![alt text](images/authors.png)
+
 ### 3. Registro de Libros Anti-Duplicación
 El ingreso de nuevos libros usa autocompletado en el front-end con peticiones AJAX, brindando hasta 10 respuestas cortas, evitando que el usuario envíe peticiones masivas enteras. 
 Implementa prevención predictiva contra "ISBN clonados", validado usando `SELECT 1 FROM books WHERE isbn=? LIMIT 1`.
 
+![alt text](images/bookRegister.png)
+
 ### 4. Manejo del Ciclo de Préstamos
 Los componentes de préstamos en `/loans` tienen doble pestaña de visualización (Históricos vs Activos). 
 Permite filtros combinados que ajustan iterativamente un `StringBuilder` en SQL, haciendo posible buscar de forma ágil desde el identificador de usuario hasta por margen de fechas.
+
+![alt text](images/loans.png)
 
 ### Endpoints AJAX 
 Como referencia de la API reactiva interna que posee el sistema (Devuelve respuestas asíncronas tipo JSON al cliente JavaScript HTML):
