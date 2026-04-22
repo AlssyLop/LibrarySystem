@@ -88,10 +88,13 @@ public class UserController extends HttpServlet {
 
         if ("register".equals(action)) {
             try {
-                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"), request.getParameter("phone"));
+                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"),
+                        request.getParameter("phone"));
                 userModel newUser = new userModel(0, validated[0], validated[1], validated[2]);
                 this.userDAO.registerUser(newUser);
             } catch (Exception e) {
+                response.getWriter()
+                        .write("{\"status\":\"error\",\"message: " + e.getMessage() + "\"}");
                 System.out.println("Error validando usuario en registro: " + e.getMessage());
             }
             response.sendRedirect("users");
@@ -99,10 +102,13 @@ public class UserController extends HttpServlet {
         } else if ("update".equals(action)) {
             try {
                 int idUser = Integer.parseInt(request.getParameter("idUser"));
-                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"), request.getParameter("phone"));
+                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"),
+                        request.getParameter("phone"));
                 userModel user = new userModel(idUser, validated[0], validated[1], validated[2], true);
                 this.userDAO.updateUser(user);
             } catch (Exception e) {
+                response.getWriter()
+                        .write("{\"status\":\"error\",\"message: " + e.getMessage() + "\"}");
                 System.out.println("Error validando usuario en actualización: " + e.getMessage());
             }
             response.sendRedirect("users");
@@ -111,31 +117,32 @@ public class UserController extends HttpServlet {
 
     private String[] validateUser(String name, String email, String phone) throws Exception {
         // --- REQUERIMIENTO NAME ---
-        if (name == null) throw new Exception("El nombre es requerido.");
+        if (name == null)
+            throw new Exception("El nombre es requerido.");
         name = name.trim().toUpperCase();
         if (name.length() < 3 || name.length() > 100) {
             throw new Exception("El nombre debe tener entre 3 y 100 caracteres.");
         }
         if (!name.matches("^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ_\\.\\-\\s]*$")) {
-            throw new Exception("El nombre contiene caracteres inválidos o no empieza con letra.");
+            throw new Exception("Nombre inválido");
         }
-
         // --- REQUERIMIENTO EMAIL ---
-        if (email == null) throw new Exception("El email es requerido.");
+        if (email == null)
+            throw new Exception("Email requerido.");
         email = email.trim().toLowerCase();
         if (email.length() > 100) {
-            throw new Exception("El email supera el máximo de 100 caracteres.");
+            throw new Exception("Email inválido. Supera el máximo de 100 caracteres.");
         }
         String[] emailParts = email.split("@");
         if (emailParts.length != 2 || emailParts[0].length() > 50 || emailParts[1].length() > 50) {
-            throw new Exception("El email debe tener un arroba y partes menores a 50 caracteres.");
+            throw new Exception("Email inválido.");
         }
         if (!email.matches("^[a-z0-9_\\.\\-]+@[a-z0-9_\\.\\-]+\\.[a-z]{2,}$")) {
-            throw new Exception("Formato de email inválido.");
+            throw new Exception("Email inválido.");
         }
-
         // --- REQUERIMIENTO PHONE ---
-        if (phone == null) throw new Exception("El teléfono es requerido.");
+        if (phone == null)
+            throw new Exception("Teléfono requerido.");
         phone = phone.trim();
         boolean hasPlus = phone.startsWith("+");
         phone = phone.replaceAll("[^0-9]", ""); // Eliminar no numéricos
@@ -143,9 +150,8 @@ public class UserController extends HttpServlet {
             phone = "+" + phone;
         }
         if (phone.length() < 10 || phone.length() > 15) {
-            throw new Exception("El teléfono debe tener entre 10 y 15 caracteres.");
+            throw new Exception("Teléfono inválido. Debe tener entre 10 y 15 caracteres.");
         }
-
-        return new String[]{name, email, phone};
+        return new String[] { name, email, phone };
     }
 }
