@@ -114,7 +114,7 @@
                 <h2>Registrar Usuario</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/users" method="POST">
+            <form action="/users" method="POST">
                 <input type="hidden" name="action" value="register">
                 <div class="form-group">
                     <label>Nombres</label>
