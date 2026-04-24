@@ -1,16 +1,20 @@
 package controller;
 
+import java.io.IOException;
+import java.sql.Date;
+
+import dao.IBookDAO;
 import dao.ILoanDAO;
+import dao.IUserDAO;
+import dao.impl.BookDAO;
 import dao.impl.LoanDAO;
+import dao.impl.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.loanModel;
-
-import java.io.IOException;
-import java.sql.Date;
 
 /**
  * Servlet encargado del tráfico HTTP relacionado a los Préstamos
@@ -19,6 +23,8 @@ import java.sql.Date;
 public class LoanController extends HttpServlet {
 
     private ILoanDAO loanDAO = new LoanDAO();
+    private IUserDAO userDAO = new UserDAO();
+    private IBookDAO bookDAO = new BookDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,11 +42,19 @@ public class LoanController extends HttpServlet {
 
             String pActive = request.getParameter("pageActive");
             if (pActive != null && !pActive.isEmpty())
-                pageActive = Integer.parseInt(pActive);
+                try {
+                    pageActive = Integer.parseInt(pActive);
+                } catch (NumberFormatException e) {
+                    pageActive = 1;
+                }
 
             String pHistory = request.getParameter("pageHistory");
             if (pHistory != null && !pHistory.isEmpty())
-                pageHistory = Integer.parseInt(pHistory);
+                try {
+                    pageHistory = Integer.parseInt(pHistory);
+                } catch (NumberFormatException e) {
+                    pageHistory = 1;
+                }
 
             String activeTab = request.getParameter("tab");
             if (activeTab == null)
@@ -59,7 +73,11 @@ public class LoanController extends HttpServlet {
             Date dateFilter = null;
             String dateParam = request.getParameter("dateFilter");
             if (dateParam != null && !dateParam.trim().isEmpty()) {
-                dateFilter = Date.valueOf(dateParam.trim());
+                try {
+                    dateFilter = Date.valueOf(dateParam.trim());
+                } catch (IllegalArgumentException e) {
+                    dateFilter = null;
+                }
             }
 
             // Extract filters for history tab
@@ -111,61 +129,65 @@ public class LoanController extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("registerAjax".equals(action)) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            String idUserStr = request.getParameter("idUser");
-            String idBookStr = request.getParameter("idBook");
-
-            if (idUserStr == null || idUserStr.trim().isEmpty() || idBookStr == null || idBookStr.trim().isEmpty()) {
-                response.getWriter()
-                        .write("{\"status\":\"error\",\"message\":\"Debe seleccionar un usuario y un libro.\"}");
-                return;
-            }
-
-            try {
-                int idUser = Integer.parseInt(idUserStr.trim());
-                int idBook = Integer.parseInt(idBookStr.trim());
-                Date loanDate = new Date(System.currentTimeMillis());
-
-                loanModel newLoan = new loanModel(0, loanDate, null, idUser, idBook);
-                boolean ok = this.loanDAO.registerLoan(newLoan);
-                if (ok) {
-                    response.getWriter()
-                            .write("{\"status\":\"success\",\"message\":\"Préstamo registrado exitosamente.\"}");
-                } else {
-                    response.getWriter()
-                            .write("{\"status\":\"error\",\"message\":\"Error al registrar el préstamo.\"}");
-                }
-            } catch (NumberFormatException e) {
-                response.getWriter()
-                        .write("{\"status\":\"error\",\"message\":\"Los IDs de usuario o libro no son válidos.\"}");
-            }
-
-        } else if ("register".equals(action)) {
-            Date loanDate = new Date(System.currentTimeMillis());
-
-            String idUserStr = request.getParameter("idUser");
-            String idBookStr = request.getParameter("idBook");
-
-            if (idUserStr == null || idUserStr.isEmpty() || idBookStr == null || idBookStr.isEmpty()) {
-                response.sendRedirect("loans");
-                return;
-            }
-
-            int idUser = Integer.parseInt(idUserStr);
-            int idBook = Integer.parseInt(idBookStr);
-
-            loanModel newLoan = new loanModel(0, loanDate, null, idUser, idBook);
-            this.loanDAO.registerLoan(newLoan);
-            response.sendRedirect("loans");
-
-        } else if ("return".equals(action)) {
-            int idLoan = Integer.parseInt(request.getParameter("idLoan"));
-            Date returnDate = new Date(System.currentTimeMillis()); // Fecha actual de devolucion
-
-            this.loanDAO.returnBook(idLoan, returnDate);
-            response.sendRedirect("loans");
+            registerLoan(request, response);
         }
+    }
+
+    private void registerLoan(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            loanModel loan = validateLoan(request.getParameter("idUser"), request.getParameter("idBook"));
+            boolean ok = this.loanDAO.registerLoan(loan);
+            if (ok) {
+                response.getWriter().write("{\"status\":\"success\",\"message\":\"Préstamo registrado exitosamente.\"}");
+            } else {
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al registrar el préstamo.\"}");
+            }
+        } catch (Exception e) {
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    private loanModel validateLoan(String idUserStr, String idBookStr) throws Exception {
+        String message = "";
+        try {
+            // --- ID USER ---
+            message = "Debe seleccionar un usuario.";
+            messageException(idUserStr == null || idUserStr.trim().isEmpty(), message);
+            idUserStr = idUserStr.replaceAll("\\s+", "");
+            message = "Usuario inválido";
+            int idUser = Integer.parseInt(idUserStr);
+            messageException(idUser < 1, message);
+            messageException(!this.userDAO.checkIdUserExists(idUser),
+                    "Usuario no válido. No se encuentra registrado.");
+
+            // --- ID BOOK ---
+            message = "Debe seleccionar un libro.";
+            messageException(idBookStr == null || idBookStr.trim().isEmpty(), message);
+            idBookStr = idBookStr.replaceAll("\\s+", "");
+            message = "Libro inválido";
+            int idBook = Integer.parseInt(idBookStr);
+            messageException(idBook < 1, message);
+            messageException(!this.bookDAO.checkIdLibroExits(idBook),
+                    "Libro no válido. No se encuentra registrado.");
+
+            // --- DUPLICADO ---
+            messageException(this.loanDAO.checkActiveLoanExists(idUser, idBook),
+                    "El usuario ya tiene un préstamo activo de este libro.");
+
+            Date loanDate = new Date(System.currentTimeMillis());
+            return new loanModel(0, loanDate, null, idUser, idBook);
+
+        } catch (NullPointerException e) {
+            throw new Exception(message);
+        } catch (NumberFormatException e) {
+            throw new Exception(message);
+        }
+    }
+
+    private void messageException(boolean condition, String message) throws Exception {
+        if (condition)
+            throw new Exception(message);
     }
 }

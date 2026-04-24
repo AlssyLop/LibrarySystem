@@ -293,4 +293,27 @@ public class LoanDAO implements ILoanDAO {
         }
         return total;
     }
+
+    @Override
+    public boolean checkActiveLoanExists(int idUser, int idBook) {
+        String sql = "SELECT 1 FROM loans WHERE id_user = ? AND id_book = ? AND returned = 0 LIMIT 1";
+        boolean exists = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, idUser);
+                    ps.setInt(2, idBook);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        exists = rs.next();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking active loan: " + e.getMessage());
+        }
+
+        return exists;
+    }
 }

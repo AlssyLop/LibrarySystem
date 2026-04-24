@@ -17,4 +17,5 @@ public interface ILoanDAO {
     int countActiveLoans(Integer idUserSearch, Date dateFilter);
     List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter);
     int countHistoryLoans(Integer idUserSearch, Date dateFilter);
+    boolean checkActiveLoanExists(int idUser, int idBook);
 }
