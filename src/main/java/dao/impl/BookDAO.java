@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import model.bookModel;
 
 /**
@@ -134,6 +135,43 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
+    public boolean updateBookPartial(int idBook, Map<String, Object> changes) {
+        if (changes == null || changes.isEmpty()) return false;
+
+        StringBuilder sql = new StringBuilder("UPDATE books SET ");
+        List<Object> params = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : changes.entrySet()) {
+            sql.append(entry.getKey()).append(" = ?, ");
+            params.add(entry.getValue());
+        }
+        sql.setLength(sql.length() - 2); // Eliminar última coma
+        sql.append(" WHERE id_book = ?");
+        params.add(idBook);
+
+        boolean isUpdated = false;
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                    for (int i = 0; i < params.size(); i++) {
+                        Object val = params.get(i);
+                        if (val instanceof String) {
+                            ps.setString(i + 1, (String) val);
+                        } else if (val instanceof Integer) {
+                            ps.setInt(i + 1, (Integer) val);
+                        }
+                    }
+                    isUpdated = ps.executeUpdate() > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating book partial: " + e.getMessage());
+        }
+        return isUpdated;
+    }
+
+    @Override
     public List<bookModel> listBooksPaginated(int limit, int offset, String query) {
         String sql;
         boolean hasQuery = query != null && !query.trim().isEmpty();
@@ -235,6 +273,28 @@ public class BookDAO implements IBookDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error checking ISBN: " + e.getMessage());
+        }
+
+        return exists;
+    }
+    
+    @Override
+    public boolean checkIdLibroExits(int idBook){
+        String sql = "SELECT 1 FROM books WHERE id_book = ? LIMIT 1";
+        boolean exists = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, idBook);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        exists = rs.next();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking ID book: " + e.getMessage());
         }
 
         return exists;
