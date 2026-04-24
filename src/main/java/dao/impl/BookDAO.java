@@ -24,11 +24,12 @@ public class BookDAO implements IBookDAO {
                 rs.getString("isbn"),
                 rs.getInt("year"),
                 rs.getInt("id_author"));
-                
+
         try {
             b.setAuthorName(rs.getString(6));
-        } catch (SQLException ignore) {}
-        
+        } catch (SQLException ignore) {
+        }
+
         return b;
     }
 
@@ -109,34 +110,9 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public boolean updateBook(bookModel book) {
-        String sql = "UPDATE books SET title = ?, isbn = ?, year = ?, id_author = ? WHERE id_book = ?";
-        boolean isUpdated = false;
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, book.getTitle());
-                    ps.setString(2, book.getIsbn());
-                    ps.setInt(3, book.getYear());
-                    ps.setInt(4, book.getIdAuthor());
-                    ps.setInt(5, book.getIdBook());
-
-                    int rowsAffected = ps.executeUpdate();
-                    isUpdated = rowsAffected > 0;
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error updating book: " + e.getMessage());
-        }
-
-        return isUpdated;
-    }
-
-    @Override
     public boolean updateBookPartial(int idBook, Map<String, Object> changes) {
-        if (changes == null || changes.isEmpty()) return false;
+        if (changes == null || changes.isEmpty())
+            return false;
 
         StringBuilder sql = new StringBuilder("UPDATE books SET ");
         List<Object> params = new ArrayList<>();
@@ -145,7 +121,7 @@ public class BookDAO implements IBookDAO {
             sql.append(entry.getKey()).append(" = ?, ");
             params.add(entry.getValue());
         }
-        sql.setLength(sql.length() - 2); // Eliminar última coma
+        sql.setLength(sql.length() - 2);
         sql.append(" WHERE id_book = ?");
         params.add(idBook);
 
@@ -277,9 +253,9 @@ public class BookDAO implements IBookDAO {
 
         return exists;
     }
-    
+
     @Override
-    public boolean checkIdLibroExits(int idBook){
+    public boolean checkIdLibroExits(int idBook) {
         String sql = "SELECT 1 FROM books WHERE id_book = ? LIMIT 1";
         boolean exists = false;
 

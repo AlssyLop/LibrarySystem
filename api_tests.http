@@ -1,45 +1,136 @@
 @baseUrl = http://localhost:8080
 
+### ===================== USUARIOS =====================
+
 ### 1. Buscar Usuarios (JSON)
 GET {{baseUrl}}/users?action=apiSearch&query=Usuario 
 Accept: application/json
 
-### 2. Buscar Autores (JSON)
+### 2. Registrar Usuario (AJAX)
+POST {{baseUrl}}/users
+Content-Type: application/x-www-form-urlencoded
+
+action=register
+&name=Juan Perez
+&email=juan.perez@gmail.com
+&phone=+573001234567
+
+### 3. Actualizar Usuario (AJAX) - Sin cambios → info
+POST {{baseUrl}}/users
+Content-Type: application/x-www-form-urlencoded
+
+action=update
+&idUser=1
+&name=JUAN PEREZ
+&email=juan.perez@gmail.com
+&phone=+573001234567
+
+### 4. Actualizar Usuario (AJAX) - Con cambios → success
+POST {{baseUrl}}/users
+Content-Type: application/x-www-form-urlencoded
+
+action=update
+&idUser=1
+&name=Juan Pablo Perez
+&email=juan.pablo@gmail.com
+&phone=+573009876543
+
+### ===================== AUTORES =====================
+
+### 5. Buscar Autores (JSON)
 GET {{baseUrl}}/authors?action=apiSearch&query=Autor
 Accept: application/json
 
-### 3. Buscar Libros (JSON)
+### 6. Registrar Autor (AJAX)
+POST {{baseUrl}}/authors
+Content-Type: application/x-www-form-urlencoded
+
+action=register
+&name=Gabriel Garcia
+&nationality=Colombia
+
+### 7. Actualizar Autor (AJAX) - Sin cambios → info
+POST {{baseUrl}}/authors
+Content-Type: application/x-www-form-urlencoded
+
+action=update
+&idAuthor=1
+&name=GABRIEL GARCIA
+&nationality=COLOMBIA
+
+### 8. Actualizar Autor (AJAX) - Con cambios → success
+POST {{baseUrl}}/authors
+Content-Type: application/x-www-form-urlencoded
+
+action=update
+&idAuthor=1
+&name=Gabriel Jose Garcia
+&nationality=México
+
+### ===================== LIBROS =====================
+
+### 9. Buscar Libros (JSON)
 GET {{baseUrl}}/books?action=apiSearch&query=Libro
 Accept: application/json
 
-### 4. Registrar Libro (AJAX)
+### 10. Registrar Libro (AJAX)
 # Nota: idAuthor debe existir en la base de datos
 POST {{baseUrl}}/books
 Content-Type: application/x-www-form-urlencoded
 
-action=registerAjax
-&title=Nuevo Libro Test
-&isbn=999-888-777
-&year=2024
+action=register
+&idBook=2
+&title=Los Cuenticos
+&isbn=111-1-11-111111-0
+&year=2026
 &idAuthor=1
 
-### 5. Actualizar Libro (AJAX)
-# Nota: idBook e idAuthor deben ser válidos
+### 11. Actualizar Libro (AJAX) - Sin cambios → info
 POST {{baseUrl}}/books
 Content-Type: application/x-www-form-urlencoded
 
-action=updateAjax
+action=update
 &idBook=1
-&title=Título Modificado
-&isbn=999-888-777
-&year=2025
+&title=Libro1 El Misterio
+&isbn=978-3-16-148410-0
+&year=1988
+&idAuthor=1197
+
+### 12. Actualizar Libro (AJAX) - Con cambios → success
+POST {{baseUrl}}/books
+Content-Type: application/x-www-form-urlencoded
+
+action=update
+&idBook=1
+&title=Libro Actualizado
+&isbn=978-3-16-148410-0
+&year=2020
 &idAuthor=1
 
-### 6. Registrar Préstamo (AJAX)
-# Nota: idUser e idBook deben ser válidos
+### ===================== PRÉSTAMOS =====================
+
+### 13. Registrar Préstamo (AJAX)
+# Nota: idUser e idBook deben ser válidos y activos
 POST {{baseUrl}}/loans
 Content-Type: application/x-www-form-urlencoded
 
 action=registerAjax
 &idUser=1
 &idBook=1
+
+### 14. Registrar Préstamo Duplicado (AJAX) → error
+# Mismo usuario y libro que el anterior
+POST {{baseUrl}}/loans
+Content-Type: application/x-www-form-urlencoded
+
+action=registerAjax
+&idUser=1
+&idBook=1
+
+### 15. Registrar Préstamo con IDs inválidos (AJAX) → error
+POST {{baseUrl}}/loans
+Content-Type: application/x-www-form-urlencoded
+
+action=registerAjax
+&idUser=9999
+&idBook=9999
