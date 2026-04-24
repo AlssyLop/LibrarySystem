@@ -1,5 +1,9 @@
 package controller;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import dao.IUserDAO;
 import dao.impl.UserDAO;
 import jakarta.servlet.ServletException;
@@ -8,8 +12,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.userModel;
-
-import java.io.IOException;
 
 /**
  * Servlet encargado del tráfico HTTP relacionado a los Usuarios
@@ -54,7 +56,11 @@ public class UserController extends HttpServlet {
             int limit = 15;
             String pageParam = request.getParameter("page");
             if (pageParam != null && !pageParam.isEmpty()) {
-                page = Integer.parseInt(pageParam);
+                try {
+                    page = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    page = 1;
+                }
             }
             String query = request.getParameter("query");
             if (query == null)
@@ -87,71 +93,142 @@ public class UserController extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("register".equals(action)) {
-            try {
-                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"),
-                        request.getParameter("phone"));
-                userModel newUser = new userModel(0, validated[0], validated[1], validated[2]);
-                this.userDAO.registerUser(newUser);
-            } catch (Exception e) {
-                response.getWriter()
-                        .write("{\"status\":\"error\",\"message: " + e.getMessage() + "\"}");
-                System.out.println("Error validando usuario en registro: " + e.getMessage());
-            }
-            response.sendRedirect("users");
-
+            registerUser(request, response);
         } else if ("update".equals(action)) {
-            try {
-                int idUser = Integer.parseInt(request.getParameter("idUser"));
-                String[] validated = validateUser(request.getParameter("name"), request.getParameter("email"),
-                        request.getParameter("phone"));
-                userModel user = new userModel(idUser, validated[0], validated[1], validated[2], true);
-                this.userDAO.updateUser(user);
-            } catch (Exception e) {
-                response.getWriter()
-                        .write("{\"status\":\"error\",\"message: " + e.getMessage() + "\"}");
-                System.out.println("Error validando usuario en actualización: " + e.getMessage());
-            }
-            response.sendRedirect("users");
+            updateUser(request, response);
         }
     }
 
-    private String[] validateUser(String name, String email, String phone) throws Exception {
-        // --- REQUERIMIENTO NAME ---
-        if (name == null)
-            throw new Exception("El nombre es requerido.");
-        name = name.trim().toUpperCase();
-        if (name.length() < 3 || name.length() > 100) {
-            throw new Exception("El nombre debe tener entre 3 y 100 caracteres.");
+    private void registerUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            userModel user = validateUser(true, request.getParameter("idUser"),
+                    request.getParameter("name"), request.getParameter("email"),
+                    request.getParameter("phone"));
+            boolean ok = this.userDAO.registerUser(user);
+            if (ok) {
+                response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario registrado exitosamente.\"}");
+            } else {
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al registrar el usuario.\"}");
+            }
+        } catch (Exception e) {
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
         }
-        if (!name.matches("^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ_\\.\\-\\s]*$")) {
-            throw new Exception("Nombre inválido");
+    }
+
+    private void updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            userModel validatedUser = validateUser(false, request.getParameter("idUser"),
+                    request.getParameter("name"), request.getParameter("email"),
+                    request.getParameter("phone"));
+
+            // Obtener usuario actual de la DB para comparar
+            userModel currentUser = userDAO.searchUser(validatedUser.getIdUser());
+
+            // Construir mapa con solo los campos que cambiaron
+            Map<String, Object> changes = new HashMap<>();
+            if (!currentUser.getName().equals(validatedUser.getName())) {
+                changes.put("name", validatedUser.getName());
+            }
+            if (!currentUser.getEmail().equals(validatedUser.getEmail())) {
+                changes.put("email", validatedUser.getEmail());
+            }
+            if (!currentUser.getPhone().equals(validatedUser.getPhone())) {
+                changes.put("phone", validatedUser.getPhone());
+            }
+
+            if (changes.isEmpty()) {
+                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
+                return;
+            }
+
+            boolean ok = userDAO.updateUserPartial(validatedUser.getIdUser(), changes);
+            if (ok) {
+                response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
+            } else {
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al actualizar el usuario.\"}");
+            }
+        } catch (Exception e) {
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
         }
-        // --- REQUERIMIENTO EMAIL ---
-        if (email == null)
-            throw new Exception("Email requerido.");
-        email = email.trim().toLowerCase();
-        if (email.length() > 100) {
-            throw new Exception("Email inválido. Supera el máximo de 100 caracteres.");
+    }
+
+    private userModel validateUser(boolean isRegister, String idUser, String name, String email, String phone)
+            throws Exception {
+
+        String message = "";
+        try {
+            // --- ID ---
+            int IDuser = 0;
+            if (!isRegister) {
+                message = "El usuario es requerido.";
+                messageException(idUser == null || idUser.trim().isEmpty(), message);
+                idUser = idUser.replaceAll("\\s+", "");
+                message = "Usuario inválido";
+                IDuser = Integer.parseInt(idUser);
+                messageException(IDuser < 1, message);
+                messageException(!this.userDAO.checkIdUserExists(IDuser),
+                        "Usuario no válido. No se encuentra registrado");
+            }
+
+            // --- NAME ---
+            message = "El nombre es requerido.";
+            messageException(name == null || name.trim().isEmpty(), message);
+            name = String.join(" ", name.trim().split("\\s+")).toUpperCase();
+            messageException(name.length() < 3 || name.length() > 100,
+                    "El nombre debe tener entre 3 y 100 caracteres.");
+            messageException(!name.matches("^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ_\\.\\-\\s]*$"),
+                    "Nombre inválido");
+
+            // --- EMAIL ---
+            message = "Email requerido.";
+            messageException(email == null || email.trim().isEmpty(), message);
+            email = email.trim().toLowerCase();
+            messageException(email.length() > 100,
+                    "Email inválido. Supera el máximo de 100 caracteres.");
+            String[] emailParts = email.split("@");
+            messageException(emailParts.length != 2 || emailParts[0].length() > 50 || emailParts[1].length() > 50,
+                    "Email inválido.");
+            messageException(!email.matches("^[a-z0-9_\\.\\-]+@[a-z0-9_\\.\\-]+\\.[a-z]{2,}$"),
+                    "Email inválido.");
+            // Verificar duplicado de email
+            if (isRegister) {
+                messageException(this.userDAO.checkEmailExists(email),
+                        "El email ya se encuentra registrado.");
+            } else {
+                userModel currentUser = this.userDAO.searchUser(IDuser);
+                if (!currentUser.getEmail().equals(email)) {
+                    messageException(this.userDAO.checkEmailExists(email),
+                            "El email ya se encuentra asignado a otro usuario.");
+                }
+            }
+
+            // --- PHONE ---
+            message = "Teléfono requerido.";
+            messageException(phone == null || phone.trim().isEmpty(), message);
+            phone = phone.trim();
+            boolean hasPlus = phone.startsWith("+");
+            phone = phone.replaceAll("[^0-9]", "");
+            if (hasPlus) {
+                phone = "+" + phone;
+            }
+            messageException(phone.length() < 10 || phone.length() > 15,
+                    "Teléfono inválido. Debe tener entre 10 y 15 caracteres.");
+
+            return new userModel(IDuser, name, email, phone);
+
+        } catch (NullPointerException e) {
+            throw new Exception(message);
+        } catch (NumberFormatException e) {
+            throw new Exception(message);
         }
-        String[] emailParts = email.split("@");
-        if (emailParts.length != 2 || emailParts[0].length() > 50 || emailParts[1].length() > 50) {
-            throw new Exception("Email inválido.");
-        }
-        if (!email.matches("^[a-z0-9_\\.\\-]+@[a-z0-9_\\.\\-]+\\.[a-z]{2,}$")) {
-            throw new Exception("Email inválido.");
-        }
-        // --- REQUERIMIENTO PHONE ---
-        if (phone == null)
-            throw new Exception("Teléfono requerido.");
-        phone = phone.trim();
-        boolean hasPlus = phone.startsWith("+");
-        phone = phone.replaceAll("[^0-9]", ""); // Eliminar no numéricos
-        if (hasPlus) {
-            phone = "+" + phone;
-        }
-        if (phone.length() < 10 || phone.length() > 15) {
-            throw new Exception("Teléfono inválido. Debe tener entre 10 y 15 caracteres.");
-        }
-        return new String[] { name, email, phone };
+    }
+
+    private void messageException(boolean condition, String message) throws Exception {
+        if (condition)
+            throw new Exception(message);
     }
 }

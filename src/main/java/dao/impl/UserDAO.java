@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import model.userModel;
 
 /**
@@ -235,5 +236,89 @@ public class UserDAO implements IUserDAO {
         }
 
         return count;
+    }
+
+    @Override
+    public boolean updateUserPartial(int idUser, Map<String, Object> changes) {
+        if (changes == null || changes.isEmpty())
+            return false;
+
+        StringBuilder sql = new StringBuilder("UPDATE users SET ");
+        List<Object> params = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : changes.entrySet()) {
+            sql.append(entry.getKey()).append(" = ?, ");
+            params.add(entry.getValue());
+        }
+        sql.setLength(sql.length() - 2);
+        sql.append(" WHERE id_user = ?");
+        params.add(idUser);
+
+        boolean isUpdated = false;
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                    for (int i = 0; i < params.size(); i++) {
+                        Object val = params.get(i);
+                        if (val instanceof String) {
+                            ps.setString(i + 1, (String) val);
+                        } else if (val instanceof Integer) {
+                            ps.setInt(i + 1, (Integer) val);
+                        } else if (val instanceof Boolean) {
+                            ps.setBoolean(i + 1, (Boolean) val);
+                        }
+                    }
+                    isUpdated = ps.executeUpdate() > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating user partial: " + e.getMessage());
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean checkEmailExists(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ? AND activo = 1 LIMIT 1";
+        boolean exists = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, email);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        exists = rs.next();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking email: " + e.getMessage());
+        }
+
+        return exists;
+    }
+
+    @Override
+    public boolean checkIdUserExists(int idUser) {
+        String sql = "SELECT 1 FROM users WHERE id_user = ? AND activo = 1 LIMIT 1";
+        boolean exists = false;
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, idUser);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        exists = rs.next();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking ID user: " + e.getMessage());
+        }
+
+        return exists;
     }
 }
