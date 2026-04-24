@@ -65,6 +65,6 @@
         </div>
     </main>
 
-    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
+    <script src="/assets/js/app.js"></script>
 </body>
 </html>

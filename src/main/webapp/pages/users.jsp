@@ -13,7 +13,7 @@
         <div class="header-container">
             <h1 class="header-title">Usuarios</h1>
             <div class="search-bar">
-                <form action="${pageContext.request.contextPath}/users" method="GET" style="display:flex; gap:10px;">
+                <form action="/users" method="GET" style="display:flex; gap:10px;">
                     <input type="text" name="query" class="form-control" placeholder="Buscar usuario..." value="${query}">
                     <button type="submit" class="btn btn-primary"><i data-lucide="search"></i> Buscar</button>
                 </form>
@@ -50,7 +50,7 @@
                                 <button class="btn-icon amber" onclick="openUserEditModal(<%= u.getIdUser() %>, '<%= u.getName() %>', '<%= u.getEmail() %>', '<%= u.getPhone() %>')">
                                     <i data-lucide="edit-2"></i>
                                 </button>
-                                <a href="${pageContext.request.contextPath}/users?action=delete&id=<%= u.getIdUser() %>" class="btn-icon danger btn-delete">
+                                <a href="/users?action=delete&id=<%= u.getIdUser() %>" class="btn-icon danger btn-delete">
                                     <i data-lucide="trash-2"></i>
                                 </a>
                             </div>
@@ -84,21 +84,21 @@
                        
                        if (startPage > 1) {
                 %>
-                   <a href="${pageContext.request.contextPath}/users?page=1&query=<%=q%>" class="page-link">1</a>
+                   <a href="/users?page=1&query=<%=q%>" class="page-link">1</a>
                    <% if(startPage > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 
                 <%
                        for (int i = startPage; i <= endPage; i++) {
                 %>
-                   <a href="${pageContext.request.contextPath}/users?page=<%=i%>&query=<%=q%>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%=i%></a>
+                   <a href="/users?page=<%=i%>&query=<%=q%>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%=i%></a>
                 <% 
                        }
                        
                        if (endPage < totalPages) {
                 %>
                    <% if(endPage < totalPages - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                   <a href="${pageContext.request.contextPath}/users?page=<%=totalPages%>&query=<%=q%>" class="page-link"><%=totalPages%></a>
+                   <a href="/users?page=<%=totalPages%>&query=<%=q%>" class="page-link"><%=totalPages%></a>
                 <%
                        }
                    } 
@@ -114,7 +114,7 @@
                 <h2>Registrar Usuario</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="/users" method="POST">
+            <form  id="formCreateUser" action="/users" method="POST">
                 <input type="hidden" name="action" value="register">
                 <div class="form-group">
                     <label>Nombres</label>
@@ -142,7 +142,7 @@
                 <h2>Actualizar Usuario</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/users" method="POST">
+            <form action="/users" method="POST">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="idUser" id="editUserId">
                 <div class="form-group">
@@ -164,6 +164,6 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
+    <script src="/assets/js/app.js"></script>
 </body>
 </html>

@@ -90,6 +90,7 @@ public class BookController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
         if ("register".equals(action)) {
@@ -165,31 +166,33 @@ public class BookController extends HttpServlet {
         }
     }
 
-    private bookModel validateBook(boolean checkIdLibro, String idBook, String title, String isbn, String year,
+    private bookModel validateBook(boolean isRegister, String idBook, String title, String isbn, String year,
             String idAuthor)
             throws Exception {
 
         String message = "";
         try {
-            message = "El libro es requerido.";
-            idBook = idBook.replaceAll("\\s+", "");
-            messageException(idBook.isBlank(), message);
-            message = "Libro inválido";
-            int IDbook = Integer.parseInt(idBook);
-            messageException(IDbook < 1, message);
-            if (checkIdLibro)
-                messageException(this.bookDAO.checkIdLibroExits(IDbook), "El libro ya existe.");
-            else
+            int IDbook = 0;
+            if (!isRegister) {
+                // --- ID ---
+                message = "El libro es requerido.";
+                idBook = idBook.replaceAll("\\s+", "");
+                messageException(idBook.isBlank(), message);
+                message = "Libro inválido";
+                IDbook = Integer.parseInt(idBook);
+                messageException(IDbook < 1, message);
                 messageException(!this.bookDAO.checkIdLibroExits(IDbook),
-                        "Libro no válido. No se encuentra resgistrado");
+                        "Libro no válido. No se encuentra resgistrado.");
+            }
 
+            // --- TITLE ---
             message = "El titulo es requerido.";
-            title = String.join(" ", title.trim().split("\\s+"));
+            title = String.join(" ", title.trim().split("\\s+")).toUpperCase();
             messageException(title.isBlank(), message);
-            messageException(title.length() < 3 || title.length() > 150,
-                    "Titulo inválido. debe tener entre 3 y 150 caracteres.");
             String regexTitle = "^[\\p{L}0-9\\s.,!?:;'-]{3,150}$";
             messageException(!title.matches(regexTitle), "Título inválido");
+            messageException(title.length() < 3 || title.length() > 150,
+                    "Titulo inválido. debe tener entre 3 y 150 caracteres.");
 
             message = "El ISBN es requerido.";
             isbn = isbn.replaceAll("\\s+", "");
@@ -208,6 +211,7 @@ public class BookController extends HttpServlet {
                 }
             }
 
+            // --- YEAR ---
             message = "El año de publicación es requerido.";
             year = year.replaceAll("\\s+", "");
             messageException(year.isBlank(), message);
@@ -215,6 +219,7 @@ public class BookController extends HttpServlet {
             int Year = Integer.parseInt(year);
             messageException(Year < 1450 || Year > LocalDate.now().getYear(), message);
 
+            // --- ID AUTHOR ---
             message = "El autor es requerido.";
             messageException(idAuthor.isBlank(), message);
             message = "Autor no válido";
@@ -223,7 +228,7 @@ public class BookController extends HttpServlet {
             messageException(IDautor < 1, message);
             messageException(!this.authorDAO.checkIdAuthorExits(IDautor),
                     "Autor no válido. No se encuentra registrado");
-            return new bookModel(IDbook, title.toUpperCase(), isbn, Year, IDautor);
+            return new bookModel(IDbook, title, isbn, Year, IDautor);
 
         } catch (NullPointerException e) {
             throw new Exception(message);

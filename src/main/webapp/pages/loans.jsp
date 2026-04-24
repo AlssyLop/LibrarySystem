@@ -29,18 +29,18 @@
 
         <!-- Tab Activos -->
         <div id="tab-actives" class="tab-content <%= "actives".equals(currentTab) ? "active" : "" %>">
-            <form action="${pageContext.request.contextPath}/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <form action="/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
                 <input type="hidden" name="tab" value="actives">
                 <div class="autocomplete-container" style="flex:1;">
                     <input type="hidden" name="idUserSearch" id="filterLoanUserId" value="${idUserSearch}">
                     <input type="text" class="form-control autocomplete-input"
-                        data-endpoint="${pageContext.request.contextPath}/users?action=apiSearch"
+                        data-endpoint="/users?action=apiSearch"
                         data-target="filterLoanUserId" placeholder="Buscar por usuario..." autocomplete="off">
                     <div class="autocomplete-suggestions"></div>
                 </div>
                 <input type="date" name="dateFilter" class="form-control" value="${dateFilter}" style="flex:1;">
                 <button type="submit" class="btn btn-primary"><i data-lucide="filter"></i> Filtrar</button>
-                <a href="${pageContext.request.contextPath}/loans?tab=actives" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
+                <a href="/loans?tab=actives" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
             </form>
 
             <div class="data-table-container">
@@ -99,19 +99,19 @@
                         }
                         if (startA > 1) {
                 %>
-                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=1&pageHistory=<%=historyCurrentForLink%>" class="page-link">1</a>
+                <a href="/loans?tab=actives&pageActive=1&pageHistory=<%=historyCurrentForLink%>" class="page-link">1</a>
                 <% if (startA > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 <%
                         for (int i = startA; i <= endA; i++) {
                 %>
-                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=<%=i%>&pageHistory=<%=historyCurrentForLink%>" class="page-link <%= (i == activeCurrent) ? "active" : "" %>"><%=i%></a>
+                <a href="/loans?tab=actives&pageActive=<%=i%>&pageHistory=<%=historyCurrentForLink%>" class="page-link <%= (i == activeCurrent) ? "active" : "" %>"><%=i%></a>
                 <%
                         }
                         if (endA < activeTotal) {
                 %>
                 <% if (endA < activeTotal - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=<%=activeTotal%>&pageHistory=<%=historyCurrentForLink%>" class="page-link"><%=activeTotal%></a>
+                <a href="/loans?tab=actives&pageActive=<%=activeTotal%>&pageHistory=<%=historyCurrentForLink%>" class="page-link"><%=activeTotal%></a>
                 <%
                         }
                     }
@@ -121,18 +121,18 @@
 
         <!-- Tab Historial -->
         <div id="tab-history" class="tab-content <%= "history".equals(currentTab) ? "active" : "" %>">
-            <form action="${pageContext.request.contextPath}/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <form action="/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
                 <input type="hidden" name="tab" value="history">
                 <div class="autocomplete-container" style="flex:1;">
                     <input type="hidden" name="idUserSearchHist" id="filterHistUserId" value="${idUserSearchHist}">
                     <input type="text" class="form-control autocomplete-input"
-                        data-endpoint="${pageContext.request.contextPath}/users?action=apiSearch"
+                        data-endpoint="/users?action=apiSearch"
                         data-target="filterHistUserId" placeholder="Buscar por usuario..." autocomplete="off">
                     <div class="autocomplete-suggestions"></div>
                 </div>
                 <input type="date" name="dateFilterHist" class="form-control" value="${dateFilterHist}" style="flex:1;">
                 <button type="submit" class="btn btn-primary"><i data-lucide="filter"></i> Filtrar</button>
-                <a href="${pageContext.request.contextPath}/loans?tab=history" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
+                <a href="/loans?tab=history" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
             </form>
 
             <div class="data-table-container">
@@ -191,19 +191,19 @@
                         }
                         if (startH > 1) {
                 %>
-                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=1" class="page-link">1</a>
+                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=1" class="page-link">1</a>
                 <% if (startH > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 <%
                         for (int i = startH; i <= endH; i++) {
                 %>
-                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=i%>" class="page-link <%= (i == historyCurrent) ? "active" : "" %>"><%=i%></a>
+                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=i%>" class="page-link <%= (i == historyCurrent) ? "active" : "" %>"><%=i%></a>
                 <%
                         }
                         if (endH < historyTotal) {
                 %>
                 <% if (endH < historyTotal - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=historyTotal%>" class="page-link"><%=historyTotal%></a>
+                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=historyTotal%>" class="page-link"><%=historyTotal%></a>
                 <%
                         }
                     }
@@ -220,14 +220,14 @@
                 <h2>Registrar Préstamo</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form id="formCreateLoan" action="${pageContext.request.contextPath}/loans" method="POST">
+            <form id="formCreateLoan" action="/loans" method="POST">
                 <input type="hidden" name="action" value="registerAjax">
 
                 <div class="form-group autocomplete-container">
                     <label>Usuario</label>
                     <input type="hidden" name="idUser" id="createLoanUserId" required>
                     <input type="text" class="form-control autocomplete-input"
-                        data-endpoint="${pageContext.request.contextPath}/users?action=apiSearch"
+                        data-endpoint="/users?action=apiSearch"
                         data-target="createLoanUserId" placeholder="Buscar usuario..." required autocomplete="off">
                     <div class="autocomplete-suggestions"></div>
                 </div>
@@ -236,7 +236,7 @@
                     <label>Libro</label>
                     <input type="hidden" name="idBook" id="createLoanBookId" required>
                     <input type="text" class="form-control autocomplete-input"
-                        data-endpoint="${pageContext.request.contextPath}/books?action=apiSearch"
+                        data-endpoint="/books?action=apiSearch"
                         data-target="createLoanBookId" placeholder="Buscar libro..." required autocomplete="off">
                     <div class="autocomplete-suggestions"></div>
                 </div>
@@ -255,7 +255,7 @@
                 <h2>Devolver Libro</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/loans" method="POST">
+            <form action="/loans" method="POST">
                 <input type="hidden" name="action" value="return">
                 <input type="hidden" name="idLoan" id="returnLoanId">
                 <p style="margin-bottom: 20px;">¿Confirmas que el usuario ha devuelto este libro?</p>
@@ -266,6 +266,6 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
+    <script src="/assets/js/app.js"></script>
 </body>
 </html>

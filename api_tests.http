@@ -79,7 +79,6 @@ POST {{baseUrl}}/books
 Content-Type: application/x-www-form-urlencoded
 
 action=register
-&idBook=2
 &title=Los Cuenticos
 &isbn=111-1-11-111111-0
 &year=2026

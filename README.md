@@ -29,6 +29,8 @@ El proyecto mantiene una estricta separación de responsabilidades:
 *   **`controller/` (Controladores):** Componentes (`HttpServlet`) que actúan como orquestadores del sistema, manejando peticiones HTTP (GET/POST), evaluando reglas de negocio y entregando respuestas (JSP o JSON).
 *   **`dao/` y `dao/impl/` (Acceso a Datos):** Interfaces de abstracción y sus implementaciones concretas de JDBC usando conectividad controlada por `PreparedStatement`.
 *   **`model/` (Entidades):** Objetos de transferencia o de valor que representan tablas únicas (Usuario, Libro, Préstamo).
+*   **`CharacterEncodingFilter` (Filtro):** Middleware que garantiza que todas las peticiones y respuestas utilicen codificación UTF-8, resolviendo problemas de caracteres especiales y acentos.
+
 
 ![alt text](images/diagramLibrarySystemMVC.png)
 
@@ -145,22 +147,37 @@ Como referencia de la API reactiva interna que posee el sistema (Devuelve respue
 #### 3. Buscar Libros
 *   `GET /books?action=apiSearch&query=...`
 
-#### 4. Registrar/Actualizar Libro (AJAX)
+#### 4. Registrar/Actualizar Usuario (AJAX)
+*   `POST /users`
+    `Content-Type: application/x-www-form-urlencoded`
+    `action=register` ó `action=update`
+    `&name=Nombre Completo`
+    `&email=usuario@ejemplo.com`
+    `&phone=+573001234567`
+
+#### 5. Registrar/Actualizar Autor (AJAX)
+*   `POST /authors`
+    `Content-Type: application/x-www-form-urlencoded`
+    `action=register` ó `action=update`
+    `&name=Nombre Autor`
+    `&nationality=País`
+
+#### 6. Registrar/Actualizar Libro (AJAX)
 *   `POST /books`
     `Content-Type: application/x-www-form-urlencoded`
-    `action=registerAjax` ó `action=updateAjax`
+    `action=register` ó `action=update`
     `&title=Nuevo Libro Test`
     `&isbn=999-888-777`
     `&year=2024`
-    `&idAuthor=1.`
-    
+    `&idAuthor=1`
 
-#### 5. Registrar Préstamo (AJAX)
+#### 7. Registrar Préstamo (AJAX)
 *   `POST /loans`
     `Content-Type: application/x-www-form-urlencoded`
     `action=registerAjax`
     `&idUser=1`
     `&idBook=1`
+
 ---
 
 ## 📄 Licencia

@@ -93,6 +93,7 @@ public class AuthorController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
         if ("register".equals(action)) {
@@ -176,6 +177,8 @@ public class AuthorController extends HttpServlet {
             message = "El nombre es requerido.";
             messageException(name == null || name.trim().isEmpty(), message);
             name = String.join(" ", name.trim().split("\\s+")).toUpperCase();
+            messageException(!name.matches("^[\\p{L}][\\p{L} .'-]*$"),
+                    "Nombre inválido");
             messageException(name.length() < 3 || name.length() > 100,
                     "El nombre debe tener entre 3 y 100 caracteres.");
 
@@ -210,4 +213,3 @@ public class AuthorController extends HttpServlet {
             throw new Exception(message);
     }
 }
-

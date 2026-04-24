@@ -90,6 +90,7 @@ public class UserController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
         if ("register".equals(action)) {
@@ -147,7 +148,8 @@ public class UserController extends HttpServlet {
 
             boolean ok = userDAO.updateUserPartial(validatedUser.getIdUser(), changes);
             if (ok) {
-                response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
+                response.getWriter()
+                        .write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
             } else {
                 response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al actualizar el usuario.\"}");
             }
@@ -171,29 +173,32 @@ public class UserController extends HttpServlet {
                 IDuser = Integer.parseInt(idUser);
                 messageException(IDuser < 1, message);
                 messageException(!this.userDAO.checkIdUserExists(IDuser),
-                        "Usuario no válido. No se encuentra registrado");
+                        "Usuario no válido. No se encuentra registrado.");
             }
 
             // --- NAME ---
             message = "El nombre es requerido.";
             messageException(name == null || name.trim().isEmpty(), message);
             name = String.join(" ", name.trim().split("\\s+")).toUpperCase();
+            messageException(!name.matches("^[\\p{L}][\\p{L} .'-]*$"),
+                    "Nombre inválido");
             messageException(name.length() < 3 || name.length() > 100,
                     "El nombre debe tener entre 3 y 100 caracteres.");
-            messageException(!name.matches("^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ_\\.\\-\\s]*$"),
-                    "Nombre inválido");
 
             // --- EMAIL ---
             message = "Email requerido.";
             messageException(email == null || email.trim().isEmpty(), message);
             email = email.trim().toLowerCase();
-            messageException(email.length() > 100,
-                    "Email inválido. Supera el máximo de 100 caracteres.");
+            message = "Email inválido.";
+            messageException(email.matches(".*\\s.*"), message);
             String[] emailParts = email.split("@");
             messageException(emailParts.length != 2 || emailParts[0].length() > 50 || emailParts[1].length() > 50,
-                    "Email inválido.");
-            messageException(!email.matches("^[a-z0-9_\\.\\-]+@[a-z0-9_\\.\\-]+\\.[a-z]{2,}$"),
-                    "Email inválido.");
+                    message);
+            messageException(!email.matches(
+                    "^[a-z0-9_\\.\\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$"),
+                    message);
+            messageException(email.length() > 100,
+                    "Email inválido. Supera el máximo de 100 caracteres.");
             // Verificar duplicado de email
             if (isRegister) {
                 messageException(this.userDAO.checkEmailExists(email),
@@ -209,7 +214,7 @@ public class UserController extends HttpServlet {
             // --- PHONE ---
             message = "Teléfono requerido.";
             messageException(phone == null || phone.trim().isEmpty(), message);
-            phone = phone.trim();
+            phone = phone.replaceAll("\\s+", "");
             boolean hasPlus = phone.startsWith("+");
             phone = phone.replaceAll("[^0-9]", "");
             if (hasPlus) {

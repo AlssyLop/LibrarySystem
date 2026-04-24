@@ -185,12 +185,12 @@ function openReturnLoanModal(id) {
 
 // AJAX Form Submission Handler
 function setupAjaxForm(formId, modalId) {
+    
     const form = document.getElementById(formId);
     if (!form) return;
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
@@ -211,7 +211,6 @@ function setupAjaxForm(formId, modalId) {
 
                 let data;
                 data = JSON.parse(text);
-
                 if (data.status === 'success') {
                     document.getElementById(modalId).classList.remove('active');
                     window.location.reload();
@@ -229,6 +228,7 @@ function setupAjaxForm(formId, modalId) {
 }
 
 // Initialize AJAX forms
+setupAjaxForm('formCreateUser', 'modalCreateUser');
 setupAjaxForm('formCreateBook', 'modalCreateBook');
 setupAjaxForm('formEditBook', 'modalEditBook');
 setupAjaxForm('formCreateLoan', 'modalCreateLoan');
