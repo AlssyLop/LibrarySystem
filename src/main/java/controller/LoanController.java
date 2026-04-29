@@ -135,6 +135,26 @@ public class LoanController extends HttpServlet {
 
         if ("registerAjax".equals(action)) {
             registerLoan(request, response);
+        } else if ("return".equals(action)) {
+            returnLoan(request, response);
+        }
+    }
+
+    private void returnLoan(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            int idLoan = Integer.parseInt(request.getParameter("idLoan"));
+            loanService.returnBook(idLoan);
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Libro devuelto exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
+        } catch (Exception e) {
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 

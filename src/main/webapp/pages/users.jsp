@@ -142,7 +142,7 @@
                 <h2>Actualizar Usuario</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/users" method="POST">
+            <form id="formEditUser" action="${pageContext.request.contextPath}/users" method="POST">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="idUser" id="editUserId">
                 <div class="form-group">

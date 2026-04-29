@@ -65,8 +65,12 @@
                                                 </td>
                                                 <td>
                                                     <div class="actions-col">
-                                                        <button class="btn-icon amber"
-                                                            onclick="openBookEditModal(<%= b.getIdBook() %>, '<%= b.getTitle().replace("'", "\\'") %>', '<%= b.getIsbn() %>', <%= b.getYear() %>, <%= b.getIdAuthor() %>)">
+                                                        <button class="btn-icon amber js-edit-book" 
+                                                            data-id="<%= b.getIdBook() %>" 
+                                                            data-title="<%= b.getTitle().replace("\"", "&quot;") %>" 
+                                                            data-isbn="<%= b.getIsbn() %>" 
+                                                            data-year="<%= b.getYear() %>" 
+                                                            data-authorid="<%= b.getIdAuthor() %>">
                                                             <i data-lucide="edit-2"></i>
                                                         </button>
                                                     </div>

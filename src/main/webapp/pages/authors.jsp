@@ -107,7 +107,7 @@
                 <h2>Registrar Autor</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/authors" method="POST">
+            <form id="formCreateAuthor" action="${pageContext.request.contextPath}/authors" method="POST">
                 <input type="hidden" name="action" value="register">
                 <div class="form-group">
                     <label>Nombre Completo</label>
@@ -134,7 +134,7 @@
                 <h2>Actualizar Autor</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/authors" method="POST">
+            <form id="formEditAuthor" action="${pageContext.request.contextPath}/authors" method="POST">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="idAuthor" id="editAuthorId">
                 <div class="form-group">

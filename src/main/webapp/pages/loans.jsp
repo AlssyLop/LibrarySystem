@@ -69,7 +69,7 @@
                             <td><span class="badge badge-warning">Pendiente</span></td>
                             <td>
                                 <div class="actions-col">
-                                    <button class="btn-icon success" onclick="openReturnLoanModal(<%= l.getIdLoan() %>)" title="Devolver Libro">
+                                    <button class="btn-icon success js-return-loan" data-id="<%= l.getIdLoan() %>" title="Devolver Libro">
                                         <i data-lucide="check-circle"></i>
                                     </button>
                                 </div>
@@ -255,7 +255,7 @@
                 <h2>Devolver Libro</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="${pageContext.request.contextPath}/loans" method="POST">
+            <form id="formReturnLoan" action="${pageContext.request.contextPath}/loans" method="POST">
                 <input type="hidden" name="action" value="return">
                 <input type="hidden" name="idLoan" id="returnLoanId">
                 <p style="margin-bottom: 20px;">¿Confirmas que el usuario ha devuelto este libro?</p>

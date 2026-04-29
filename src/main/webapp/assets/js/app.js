@@ -194,6 +194,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
     });
+
+    // Initialize AJAX forms
+    setupAjaxForm('formCreateUser', 'modalCreateUser');
+    setupAjaxForm('formEditUser', 'modalEditUser');
+    setupAjaxForm('formCreateAuthor', 'modalCreateAuthor');
+    setupAjaxForm('formEditAuthor', 'modalEditAuthor');
+    setupAjaxForm('formCreateBook', 'modalCreateBook');
+    setupAjaxForm('formEditBook', 'modalEditBook');
+    setupAjaxForm('formCreateLoan', 'modalCreateLoan');
+    setupAjaxForm('formReturnLoan', 'modalReturnLoan');
 });
 
 // AJAX Form Submission Handler
@@ -237,9 +247,5 @@ function setupAjaxForm(formId, modalId) {
     });
 }
 
-// Initialize AJAX forms
-setupAjaxForm('formCreateUser', 'modalCreateUser');
-setupAjaxForm('formCreateBook', 'modalCreateBook');
-setupAjaxForm('formEditBook', 'modalEditBook');
-setupAjaxForm('formCreateLoan', 'modalCreateLoan');
+
 
