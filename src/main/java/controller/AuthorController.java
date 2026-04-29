@@ -1,5 +1,11 @@
 package controller;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -16,6 +22,8 @@ import service.AuthorService;
  */
 @WebServlet(name = "AuthorServlet", urlPatterns = { "/authors" })
 public class AuthorController extends HttpServlet {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     private AuthorService authorService = new AuthorService();
 
@@ -36,16 +44,14 @@ public class AuthorController extends HttpServlet {
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            StringBuilder json = new StringBuilder("[");
-            for (int i = 0; i < authList.size(); i++) {
-                model.AuthorModel a = authList.get(i);
-                json.append("{\"id\":").append(a.getIdAuthor()).append(",\"text\":\"").append(a.getIdAuthor())
-                        .append(" - ").append(a.getName().replace("\"", "\\\"")).append("\"}");
-                if (i < authList.size() - 1)
-                    json.append(",");
-            }
-            json.append("]");
-            response.getWriter().write(json.toString());
+            List<Map<String, Object>> responseList = authList.stream()
+                    .map(a -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("id", a.getIdAuthor());
+                        map.put("text", a.getIdAuthor() + " - " + a.getName());
+                        return map;
+                    }).collect(Collectors.toList());
+            response.getWriter().write(mapper.writeValueAsString(responseList));
             return;
         }
 
@@ -105,9 +111,15 @@ public class AuthorController extends HttpServlet {
                     request.getParameter("idAuthor"),
                     request.getParameter("name"), 
                     request.getParameter("nationality"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Autor registrado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Autor registrado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 
@@ -119,12 +131,21 @@ public class AuthorController extends HttpServlet {
                     request.getParameter("idAuthor"),
                     request.getParameter("name"), 
                     request.getParameter("nationality"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Autor actualizado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Autor actualizado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
             if (e.getMessage().equals("No se detectaron cambios.")) {
-                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "info");
+            responseData.put("message", "No se detectaron cambios.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             } else {
-                response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             }
         }
     }

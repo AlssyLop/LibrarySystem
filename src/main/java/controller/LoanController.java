@@ -1,5 +1,11 @@
 package controller;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.sql.Date;
 
@@ -15,6 +21,8 @@ import service.LoanService;
  */
 @WebServlet(name = "LoanServlet", urlPatterns = { "/loans" })
 public class LoanController extends HttpServlet {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     private LoanService loanService = new LoanService();
 
@@ -135,9 +143,15 @@ public class LoanController extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         try {
             loanService.registerLoan(request.getParameter("idUser"), request.getParameter("idBook"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Préstamo registrado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Préstamo registrado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 }

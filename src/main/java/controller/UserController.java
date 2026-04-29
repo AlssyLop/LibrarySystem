@@ -1,5 +1,11 @@
 package controller;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.io.IOException;
 
 import jakarta.servlet.ServletException;
@@ -15,6 +21,8 @@ import service.UserService;
  */
 @WebServlet(name = "UserServlet", urlPatterns = { "/users" })
 public class UserController extends HttpServlet {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     private UserService userService = new UserService();
 
@@ -35,16 +43,14 @@ public class UserController extends HttpServlet {
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            StringBuilder json = new StringBuilder("[");
-            for (int i = 0; i < usersList.size(); i++) {
-                model.UserModel u = usersList.get(i);
-                json.append("{\"id\":").append(u.getIdUser()).append(",\"text\":\"").append(u.getIdUser()).append(" - ")
-                        .append(u.getName().replace("\"", "\\\"")).append("\"}");
-                if (i < usersList.size() - 1)
-                    json.append(",");
-            }
-            json.append("]");
-            response.getWriter().write(json.toString());
+            List<Map<String, Object>> responseList = usersList.stream()
+                    .map(u -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("id", u.getIdUser());
+                        map.put("text", u.getIdUser() + " - " + u.getName());
+                        return map;
+                    }).collect(Collectors.toList());
+            response.getWriter().write(mapper.writeValueAsString(responseList));
             return;
         }
 
@@ -106,9 +112,15 @@ public class UserController extends HttpServlet {
                     request.getParameter("name"), 
                     request.getParameter("email"),
                     request.getParameter("phone"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario registrado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Usuario registrado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 
@@ -121,12 +133,21 @@ public class UserController extends HttpServlet {
                     request.getParameter("name"), 
                     request.getParameter("email"),
                     request.getParameter("phone"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Usuario actualizado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
             if (e.getMessage().equals("No se detectaron cambios.")) {
-                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "info");
+            responseData.put("message", "No se detectaron cambios.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             } else {
-                response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             }
         }
     }

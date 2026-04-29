@@ -1,5 +1,11 @@
 package controller;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.io.IOException;
 
 import jakarta.servlet.ServletException;
@@ -15,6 +21,8 @@ import service.BookService;
  */
 @WebServlet(name = "BookServlet", urlPatterns = { "/books" })
 public class BookController extends HttpServlet {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     private BookService bookService = new BookService();
 
@@ -35,16 +43,14 @@ public class BookController extends HttpServlet {
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            StringBuilder json = new StringBuilder("[");
-            for (int i = 0; i < bList.size(); i++) {
-                model.BookModel b = bList.get(i);
-                json.append("{\"id\":").append(b.getIdBook()).append(",\"text\":\"").append(b.getIdBook()).append(" - ")
-                        .append(b.getTitle().replace("\"", "\\\"")).append("\"}");
-                if (i < bList.size() - 1)
-                    json.append(",");
-            }
-            json.append("]");
-            response.getWriter().write(json.toString());
+            List<Map<String, Object>> responseList = bList.stream()
+                    .map(b -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("id", b.getIdBook());
+                        map.put("text", b.getIdBook() + " - " + b.getTitle());
+                        return map;
+                    }).collect(Collectors.toList());
+            response.getWriter().write(mapper.writeValueAsString(responseList));
             return;
         }
 
@@ -102,9 +108,15 @@ public class BookController extends HttpServlet {
                     request.getParameter("isbn"),
                     request.getParameter("year"),
                     request.getParameter("idAuthor"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Libro registrado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Libro registrado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 
@@ -118,12 +130,21 @@ public class BookController extends HttpServlet {
                     request.getParameter("isbn"),
                     request.getParameter("year"),
                     request.getParameter("idAuthor"));
-            response.getWriter().write("{\"status\":\"success\",\"message\":\"Libro actualizado exitosamente.\"}");
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Libro actualizado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         } catch (Exception e) {
             if (e.getMessage().equals("No se detectaron cambios.")) {
-                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "info");
+            responseData.put("message", "No se detectaron cambios.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             } else {
-                response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
+                Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
             }
         }
     }
