@@ -233,19 +233,56 @@ function setupAjaxForm(formId, modalId) {
 
                 if (data.status === 'success') {
                     document.getElementById(modalId).classList.remove('active');
-                    window.location.reload();
+                    showToast(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else if (data.status === 'info') {
+                    showToast(data.message, 'info');
                 } else {
-                    alert('Error: ' + data.message);
+                    showToast('Error: ' + data.message, 'error');
                 }
             })
             .catch(err => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
-                alert('Error de conexión con el servidor.');
+                showToast('Error de conexión con el servidor.', 'error');
                 console.error(err);
             });
     });
 }
 
 
+// Toast Notification System
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
 
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let iconName = 'info';
+    if (type === 'success') iconName = 'check-circle';
+    if (type === 'error') iconName = 'alert-circle';
+
+    toast.innerHTML = `
+        <i data-lucide="${iconName}" class="toast-icon"></i>
+        <div class="toast-content">${message}</div>
+        <button class="btn-icon" onclick="this.parentElement.remove()" style="opacity: 0.5; transform: scale(0.8)">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+    if (typeof lucide !== 'undefined') lucide.createIcons({ root: toast });
+
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 4000);
+}
