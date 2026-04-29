@@ -70,7 +70,7 @@
                                                             data-title="<%= b.getTitle().replace("\"", "&quot;") %>" 
                                                             data-isbn="<%= b.getIsbn() %>" 
                                                             data-year="<%= b.getYear() %>" 
-                                                            data-authorid="<%= b.getIdAuthor() %>">
+                                                            data-authorid="<%= b.getIdAuthor() %>" title="Editar Libro">
                                                             <i data-lucide="edit-2"></i>
                                                         </button>
                                                     </div>

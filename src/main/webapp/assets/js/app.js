@@ -55,16 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Confirmation delete alert
-    const deleteBtns = document.querySelectorAll('.btn-delete');
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if (!confirm('¿Estás seguro de que deseas eliminar este registro?')) {
-                e.preventDefault();
-            }
-        });
-    });
-
     // Tabs logic
     const tabBtns = document.querySelectorAll('.tab');
     tabBtns.forEach(btn => {
@@ -164,6 +154,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Delete User
+        const deleteUserBtn = e.target.closest('.btn-delete');
+        if (deleteUserBtn) {
+            document.getElementById('deleteUserId').value = deleteUserBtn.getAttribute('data-id');
+            document.getElementById('modalDeleteUser').classList.add('active');
+            return;
+        }
+
         // Edit Author
         const editAuthorBtn = e.target.closest('.js-edit-author');
         if (editAuthorBtn) {
@@ -204,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAjaxForm('formEditBook', 'modalEditBook');
     setupAjaxForm('formCreateLoan', 'modalCreateLoan');
     setupAjaxForm('formReturnLoan', 'modalReturnLoan');
+    setupAjaxForm('formDeleteUser', 'modalDeleteUser');
 });
 
 // AJAX Form Submission Handler

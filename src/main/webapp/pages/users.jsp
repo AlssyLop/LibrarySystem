@@ -47,10 +47,10 @@
                         <td><%= u.getPhone() %></td>
                         <td>
                             <div class="actions-col">
-                                <button class="btn-icon amber js-edit-user" data-id="<%= u.getIdUser() %>" data-name="<%= u.getName() %>" data-email="<%= u.getEmail() %>" data-phone="<%= u.getPhone() %>">
+                                <button class="btn-icon amber js-edit-user" data-id="<%= u.getIdUser() %>" data-name="<%= u.getName() %>" data-email="<%= u.getEmail() %>" data-phone="<%= u.getPhone() %>" title="Editar Usuario">
                                     <i data-lucide="edit-2"></i>
                                 </button>
-                                <a href="${pageContext.request.contextPath}/users?action=delete&id=<%= u.getIdUser() %>" class="btn-icon danger btn-delete">
+                                <a class="btn-icon danger btn-delete" data-id=<%= u.getIdUser() %> title="Eliminar Usuario">
                                     <i data-lucide="trash-2"></i>
                                 </a>
                             </div>
@@ -159,6 +159,24 @@
                 </div>
                 <div style="text-align: right; margin-top:20px;">
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete User -->
+    <div class="modal-overlay" id="modalDeleteUser">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Eliminar Usuario</h2>
+                <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="formDeleteUser" action="${pageContext.request.contextPath}/users" method="POST">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="idUser" id="deleteUserId">
+                <p style="margin-bottom: 20px;">¿Confirmas que quieres eliminar este usuario?</p>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
                 </div>
             </form>
         </div>

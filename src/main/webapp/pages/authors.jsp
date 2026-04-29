@@ -45,7 +45,7 @@
                         <td><%= a.getNationality() %></td>
                         <td>
                             <div class="actions-col">
-                                <button class="btn-icon amber js-edit-author" data-id="<%= a.getIdAuthor() %>" data-name="<%= a.getName() %>" data-nationality="<%= a.getNationality() %>">
+                                <button class="btn-icon amber js-edit-author" data-id="<%= a.getIdAuthor() %>" data-name="<%= a.getName() %>" data-nationality="<%= a.getNationality() %>" title="Editar Autor">
                                     <i data-lucide="edit-2"></i>
                                 </button>
                             </div>

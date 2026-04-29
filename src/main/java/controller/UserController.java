@@ -82,10 +82,6 @@ public class UserController extends HttpServlet {
 
             request.getRequestDispatcher("/pages/users.jsp").forward(request, response);
 
-        } else if ("delete".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            this.userService.deleteUser(id);
-            response.sendRedirect("users");
         }
     }
 
@@ -100,6 +96,8 @@ public class UserController extends HttpServlet {
             registerUser(request, response);
         } else if ("update".equals(action)) {
             updateUser(request, response);
+        } else if ("delete".equals(action)) {
+            deleteUser(request, response);
         }
     }
 
@@ -149,6 +147,23 @@ public class UserController extends HttpServlet {
             responseData.put("message", e.getMessage());
             response.getWriter().write(mapper.writeValueAsString(responseData));
             }
+        }
+    }
+
+    private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            userService.deleteUser(Integer.parseInt(request.getParameter("idUser")));
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "success");
+            responseData.put("message", "Usuario eliminado exitosamente.");
+            response.getWriter().write(mapper.writeValueAsString(responseData));
+        } catch (Exception e) {
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("status", "error");
+            responseData.put("message", e.getMessage());
+            response.getWriter().write(mapper.writeValueAsString(responseData));
         }
     }
 }
