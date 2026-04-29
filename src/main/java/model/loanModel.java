@@ -6,7 +6,7 @@ import java.sql.Date;
  *
  * @author Usuario
  */
-public class loanModel {
+public class LoanModel {
     private int idLoan;
     private Date loanDate;
     private Date returnDate;
@@ -18,7 +18,7 @@ public class loanModel {
     private String userName;
     private String bookTitle;
 
-    public loanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook, boolean returned) {
+    public LoanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook, boolean returned) {
         this.idLoan = idLoan;
         this.loanDate = loanDate;
         this.returnDate = returnDate;
@@ -27,7 +27,7 @@ public class loanModel {
         this.returned = returned;
     }
 
-    public loanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook) {
+    public LoanModel(int idLoan, Date loanDate, Date returnDate, int idUser, int idBook) {
         this.idLoan = idLoan;
         this.loanDate = loanDate;
         this.returnDate = returnDate;

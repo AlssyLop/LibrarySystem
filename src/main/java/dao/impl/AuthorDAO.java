@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import model.authorModel;
+import model.AuthorModel;
 
 /**
  *
@@ -17,16 +17,16 @@ import model.authorModel;
  */
 public class AuthorDAO implements IAuthorDAO {
 
-    // Centralized mapping from ResultSet to authorModel object
-    private authorModel mapResultSetToAuthor(ResultSet rs) throws SQLException {
-        return new authorModel(
+    // Centralized mapping from ResultSet to AuthorModel object
+    private AuthorModel mapResultSetToAuthor(ResultSet rs) throws SQLException {
+        return new AuthorModel(
                 rs.getInt("id_author"),
                 rs.getString("name"),
                 rs.getString("nationality"));
     }
 
     @Override
-    public boolean registerAuthor(authorModel author) {
+    public boolean registerAuthor(AuthorModel author) {
         System.out.println(author);
         String sql = "INSERT INTO authors (name, nationality) VALUES (?, ?)";
         boolean isRegistered = false;
@@ -50,9 +50,9 @@ public class AuthorDAO implements IAuthorDAO {
     }
 
     @Override
-    public List<authorModel> listAuthors() {
+    public List<AuthorModel> listAuthors() {
         String sql = "SELECT id_author, name, nationality FROM authors";
-        List<authorModel> authorsList = new ArrayList<>();
+        List<AuthorModel> authorsList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -61,7 +61,7 @@ public class AuthorDAO implements IAuthorDAO {
                         ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
-                        authorModel author = mapResultSetToAuthor(rs);
+                        AuthorModel author = mapResultSetToAuthor(rs);
                         authorsList.add(author);
                     }
                 }
@@ -74,7 +74,7 @@ public class AuthorDAO implements IAuthorDAO {
     }
 
     @Override
-    public boolean updateAuthor(authorModel author) {
+    public boolean updateAuthor(AuthorModel author) {
         String sql = "UPDATE authors SET name = ?, nationality = ? WHERE id_author = ?";
         boolean isUpdated = false;
 
@@ -136,9 +136,9 @@ public class AuthorDAO implements IAuthorDAO {
     }
 
     @Override
-    public authorModel searchAuthor(int idAuthor) {
+    public AuthorModel searchAuthor(int idAuthor) {
         String sql = "SELECT id_author, name, nationality FROM authors WHERE id_author = ?";
-        authorModel author = null;
+        AuthorModel author = null;
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -161,7 +161,7 @@ public class AuthorDAO implements IAuthorDAO {
     }
 
     @Override
-    public List<authorModel> listAuthorsPaginated(int limit, int offset, String query) {
+    public List<AuthorModel> listAuthorsPaginated(int limit, int offset, String query) {
         String sql;
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
@@ -171,7 +171,7 @@ public class AuthorDAO implements IAuthorDAO {
             sql = "SELECT id_author, name, nationality FROM authors LIMIT ? OFFSET ?";
         }
         
-        List<authorModel> authorsList = new ArrayList<>();
+        List<AuthorModel> authorsList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -189,7 +189,7 @@ public class AuthorDAO implements IAuthorDAO {
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            authorModel author = mapResultSetToAuthor(rs);
+                            AuthorModel author = mapResultSetToAuthor(rs);
                             authorsList.add(author);
                         }
                     }

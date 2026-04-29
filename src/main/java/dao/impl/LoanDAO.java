@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.loanModel;
+import model.LoanModel;
 
 /**
  *
@@ -17,7 +17,7 @@ import model.loanModel;
  */
 public class LoanDAO implements ILoanDAO {
 
-    private loanModel mapResultSetToLoan(ResultSet rs) throws SQLException {
+    private LoanModel mapResultSetToLoan(ResultSet rs) throws SQLException {
         boolean returned = false;
         try {
             returned = rs.getBoolean("returned");
@@ -25,7 +25,7 @@ public class LoanDAO implements ILoanDAO {
             // Ignorar si no viene en todas las consultas
         }
 
-        loanModel loan = new loanModel(
+        LoanModel loan = new LoanModel(
                 rs.getInt("id_loan"),
                 rs.getDate("loan_date"),
                 rs.getDate("return_date"),
@@ -45,7 +45,7 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public boolean registerLoan(loanModel loan) {
+    public boolean registerLoan(LoanModel loan) {
         String sql = "INSERT INTO loans (loan_date, return_date, id_user, id_book, returned) VALUES (?, ?, ?, ?, ?)";
         boolean isRegistered = false;
 
@@ -94,11 +94,11 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<loanModel> loanHistory() {
+    public List<LoanModel> loanHistory() {
         String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
                 "u.name AS user_name, b.title AS book_title " +
                 "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book";
-        List<loanModel> loansList = new ArrayList<>();
+        List<LoanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -107,7 +107,7 @@ public class LoanDAO implements ILoanDAO {
                         ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
-                        loanModel loan = mapResultSetToLoan(rs);
+                        LoanModel loan = mapResultSetToLoan(rs);
                         loansList.add(loan);
                     }
                 }
@@ -120,12 +120,12 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<loanModel> listActiveLoans() {
+    public List<LoanModel> listActiveLoans() {
         String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
                 "u.name AS user_name, b.title AS book_title " +
                 "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
                 "WHERE l.returned = 0";
-        List<loanModel> loansList = new ArrayList<>();
+        List<LoanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -134,7 +134,7 @@ public class LoanDAO implements ILoanDAO {
                         ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
-                        loanModel loan = mapResultSetToLoan(rs);
+                        LoanModel loan = mapResultSetToLoan(rs);
                         loansList.add(loan);
                     }
                 }
@@ -147,7 +147,7 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<loanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
+    public List<LoanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder(
                 "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
                         "u.name AS user_name, b.title AS book_title " +
@@ -160,7 +160,7 @@ public class LoanDAO implements ILoanDAO {
             sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
 
-        List<loanModel> loansList = new ArrayList<>();
+        List<LoanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -221,7 +221,7 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<loanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
+    public List<LoanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder(
                 "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
                         "u.name AS user_name, b.title AS book_title " +
@@ -234,7 +234,7 @@ public class LoanDAO implements ILoanDAO {
             sql.append(" AND DATE(l.loan_date) = ?");
         sql.append(" LIMIT ? OFFSET ?");
 
-        List<loanModel> loansList = new ArrayList<>();
+        List<LoanModel> loansList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();

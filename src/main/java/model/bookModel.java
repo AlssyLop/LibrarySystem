@@ -4,7 +4,7 @@ package model;
  *
  * @author Usuario
  */
-public class bookModel {
+public class BookModel {
     private int idBook;
     private String title;
     private String isbn;
@@ -14,7 +14,7 @@ public class bookModel {
     // Campo extra para mostrar el nombre en las vistas
     private String authorName;
 
-    public bookModel(int idBook, String title, String isbn, int year, int idAuthor) {
+    public BookModel(int idBook, String title, String isbn, int year, int idAuthor) {
         this.idBook = idBook;
         this.title = title;
         this.isbn = isbn;

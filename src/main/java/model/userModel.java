@@ -8,14 +8,14 @@ package model;
  *
  * @author Usuario
  */
-public class userModel {
+public class UserModel {
     private int idUser;
     private String name;
     private String email;
     private String phone;
     private boolean activo;
 
-    public userModel(int idUser, String name, String email, String phone, boolean activo) {
+    public UserModel(int idUser, String name, String email, String phone, boolean activo) {
         this.idUser = idUser;
         this.name = name;
         this.email = email;
@@ -23,7 +23,7 @@ public class userModel {
         this.activo = activo;
     }
 
-    public userModel(int idUser, String name, String email, String phone) {
+    public UserModel(int idUser, String name, String email, String phone) {
         this.idUser = idUser;
         this.name = name;
         this.email = email;

@@ -4,12 +4,12 @@ package model;
  *
  * @author Usuario
  */
-public class authorModel {
+public class AuthorModel {
     private int idAuthor;
     private String name;
     private String nationality;
 
-    public authorModel(int idAuthor, String name, String nationality) {
+    public AuthorModel(int idAuthor, String name, String nationality) {
         this.idAuthor = idAuthor;
         this.name = name;
         this.nationality = nationality;

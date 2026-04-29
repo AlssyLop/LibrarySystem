@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import model.bookModel;
+import model.BookModel;
 
 /**
  *
@@ -17,8 +17,8 @@ import model.bookModel;
  */
 public class BookDAO implements IBookDAO {
 
-    private bookModel mapResultSetToBook(ResultSet rs) throws SQLException {
-        bookModel b = new bookModel(
+    private BookModel mapResultSetToBook(ResultSet rs) throws SQLException {
+        BookModel b = new BookModel(
                 rs.getInt("id_book"),
                 rs.getString("title"),
                 rs.getString("isbn"),
@@ -34,7 +34,7 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public boolean registerBook(bookModel book) {
+    public boolean registerBook(BookModel book) {
         String sql = "INSERT INTO books (title, isbn, year, id_author) VALUES (?, ?, ?, ?)";
         boolean isRegistered = false;
 
@@ -59,10 +59,10 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public bookModel searchBook(int idBook) {
+    public BookModel searchBook(int idBook) {
         String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
                 "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author WHERE b.id_book = ?";
-        bookModel book = null;
+        BookModel book = null;
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -85,10 +85,10 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public List<bookModel> listBooks() {
+    public List<BookModel> listBooks() {
         String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
                 "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author";
-        List<bookModel> booksList = new ArrayList<>();
+        List<BookModel> booksList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -97,7 +97,7 @@ public class BookDAO implements IBookDAO {
                         ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
-                        bookModel book = mapResultSetToBook(rs);
+                        BookModel book = mapResultSetToBook(rs);
                         booksList.add(book);
                     }
                 }
@@ -148,7 +148,7 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public List<bookModel> listBooksPaginated(int limit, int offset, String query) {
+    public List<BookModel> listBooksPaginated(int limit, int offset, String query) {
         String sql;
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
@@ -161,7 +161,7 @@ public class BookDAO implements IBookDAO {
                     "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author LIMIT ? OFFSET ?";
         }
 
-        List<bookModel> booksList = new ArrayList<>();
+        List<BookModel> booksList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -181,7 +181,7 @@ public class BookDAO implements IBookDAO {
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            bookModel book = mapResultSetToBook(rs);
+                            BookModel book = mapResultSetToBook(rs);
                             booksList.add(book);
                         }
                     }

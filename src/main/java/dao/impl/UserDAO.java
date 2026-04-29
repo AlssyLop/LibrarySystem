@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import model.userModel;
+import model.UserModel;
 
 /**
  * Implementation of IUserDAO
@@ -17,8 +17,8 @@ import model.userModel;
  */
 public class UserDAO implements IUserDAO {
 
-    // Centralized mapping from ResultSet to userModel object
-    private userModel mapResultSetToUser(ResultSet rs) throws SQLException {
+    // Centralized mapping from ResultSet to UserModel object
+    private UserModel mapResultSetToUser(ResultSet rs) throws SQLException {
         boolean activo = true;
         try {
             activo = rs.getBoolean("activo");
@@ -26,7 +26,7 @@ public class UserDAO implements IUserDAO {
             // If the column doesn't exist in a specific query, keep it true
         }
 
-        return new userModel(
+        return new UserModel(
             rs.getInt("id_user"),
             rs.getString("name"),
             rs.getString("email"),
@@ -36,7 +36,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean registerUser(userModel user) {
+    public boolean registerUser(UserModel user) {
         String sql = "INSERT INTO users (name, email, phone) VALUES (?, ?, ?)";
         boolean isRegistered = false;
 
@@ -60,9 +60,9 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public List<userModel> listUsers() {
+    public List<UserModel> listUsers() {
         String sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1";
-        List<userModel> usersList = new ArrayList<>();
+        List<UserModel> usersList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -71,7 +71,7 @@ public class UserDAO implements IUserDAO {
                      ResultSet rs = ps.executeQuery()) {
                     
                     while (rs.next()) {
-                        userModel user = mapResultSetToUser(rs);
+                        UserModel user = mapResultSetToUser(rs);
                         usersList.add(user);
                     }
                 }
@@ -106,7 +106,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean updateUser(userModel user) {
+    public boolean updateUser(UserModel user) {
         String sql = "UPDATE users SET name = ?, email = ?, phone = ?, activo = ? WHERE id_user = ?";
         boolean isUpdated = false;
 
@@ -132,9 +132,9 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public userModel searchUser(int idUser) {
+    public UserModel searchUser(int idUser) {
         String sql = "SELECT id_user, name, email, phone, activo FROM users WHERE id_user = ?";
-        userModel user = null;
+        UserModel user = null;
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -157,7 +157,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public List<userModel> listUsersPaginated(int limit, int offset, String query) {
+    public List<UserModel> listUsersPaginated(int limit, int offset, String query) {
         String sql;
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
@@ -167,7 +167,7 @@ public class UserDAO implements IUserDAO {
             sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 LIMIT ? OFFSET ?";
         }
         
-        List<userModel> usersList = new ArrayList<>();
+        List<UserModel> usersList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
@@ -187,7 +187,7 @@ public class UserDAO implements IUserDAO {
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            userModel user = mapResultSetToUser(rs);
+                            UserModel user = mapResultSetToUser(rs);
                             usersList.add(user);
                         }
                     }
