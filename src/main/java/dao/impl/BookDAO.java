@@ -13,14 +13,12 @@ import model.BookModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author Usuario
  */
 public class BookDAO implements IBookDAO {
     private static final Logger logger = LoggerFactory.getLogger(BookDAO.class);
-
 
     private BookModel mapResultSetToBook(ResultSet rs) throws SQLException {
         BookModel b = new BookModel(
@@ -90,31 +88,6 @@ public class BookDAO implements IBookDAO {
     }
 
     @Override
-    public List<BookModel> listBooks() {
-        String sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author";
-        List<BookModel> booksList = new ArrayList<>();
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                        ResultSet rs = ps.executeQuery()) {
-
-                    while (rs.next()) {
-                        BookModel book = mapResultSetToBook(rs);
-                        booksList.add(book);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error listing books: ", e);
-        }
-
-        return booksList;
-    }
-
-    @Override
     public boolean updateBookPartial(int idBook, Map<String, Object> changes) {
         if (changes == null || changes.isEmpty())
             return false;
@@ -158,12 +131,13 @@ public class BookDAO implements IBookDAO {
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
         if (hasQuery) {
-            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                    "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author " +
-                    "WHERE b.title LIKE ? OR b.isbn LIKE ? LIMIT ? OFFSET ?";
+            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name "
+                    + "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author "
+                    + "WHERE b.title LIKE ? OR b.isbn LIKE ? ORDER BY b.id_book DESC LIMIT ? OFFSET ?";
         } else {
-            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name " +
-                    "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author LIMIT ? OFFSET ?";
+            sql = "SELECT b.id_book, b.title, b.isbn, b.year, b.id_author, a.name AS author_name "
+                    + "FROM books b LEFT JOIN authors a ON b.id_author = a.id_author "
+                    + "ORDER BY b.id_book DESC LIMIT ? OFFSET ?";
         }
 
         List<BookModel> booksList = new ArrayList<>();

@@ -10,7 +10,6 @@ import model.AuthorModel;
  */
 public interface IAuthorDAO {
     boolean registerAuthor(AuthorModel author);
-    List<AuthorModel> listAuthors();
     boolean updateAuthor(AuthorModel author);
     boolean updateAuthorPartial(int idAuthor, Map<String, Object> changes);
     AuthorModel searchAuthor(int idAuthor);

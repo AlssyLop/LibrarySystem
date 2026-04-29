@@ -13,14 +13,12 @@ import model.AuthorModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author Usuario
  */
 public class AuthorDAO implements IAuthorDAO {
     private static final Logger logger = LoggerFactory.getLogger(AuthorDAO.class);
-
 
     // Centralized mapping from ResultSet to AuthorModel object
     private AuthorModel mapResultSetToAuthor(ResultSet rs) throws SQLException {
@@ -52,30 +50,6 @@ public class AuthorDAO implements IAuthorDAO {
         }
 
         return isRegistered;
-    }
-
-    @Override
-    public List<AuthorModel> listAuthors() {
-        String sql = "SELECT id_author, name, nationality FROM authors";
-        List<AuthorModel> authorsList = new ArrayList<>();
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                        ResultSet rs = ps.executeQuery()) {
-
-                    while (rs.next()) {
-                        AuthorModel author = mapResultSetToAuthor(rs);
-                        authorsList.add(author);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error listing authors: ", e);
-        }
-
-        return authorsList;
     }
 
     @Override
@@ -171,11 +145,11 @@ public class AuthorDAO implements IAuthorDAO {
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
         if (hasQuery) {
-            sql = "SELECT id_author, name, nationality FROM authors WHERE name LIKE ? LIMIT ? OFFSET ?";
+            sql = "SELECT id_author, name, nationality FROM authors WHERE name LIKE ? order by id_author DESC LIMIT ? OFFSET ?";
         } else {
-            sql = "SELECT id_author, name, nationality FROM authors LIMIT ? OFFSET ?";
+            sql = "SELECT id_author, name, nationality FROM authors order by id_author DESC LIMIT ? OFFSET ?";
         }
-        
+
         List<AuthorModel> authorsList = new ArrayList<>();
 
         try {
@@ -217,7 +191,7 @@ public class AuthorDAO implements IAuthorDAO {
         } else {
             sql = "SELECT COUNT(*) FROM authors";
         }
-        
+
         int count = 0;
 
         try {
@@ -242,9 +216,9 @@ public class AuthorDAO implements IAuthorDAO {
 
         return count;
     }
-    
+
     @Override
-    public boolean checkIdAuthorExits(int idAuthor){
+    public boolean checkIdAuthorExits(int idAuthor) {
         String sql = "SELECT 1 FROM authors WHERE id_author = ? LIMIT 1";
         boolean exists = false;
 

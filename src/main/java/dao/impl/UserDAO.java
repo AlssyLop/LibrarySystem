@@ -13,14 +13,13 @@ import model.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Implementation of IUserDAO
+ * 
  * @author Usuario
  */
 public class UserDAO implements IUserDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
-
 
     // Centralized mapping from ResultSet to UserModel object
     private UserModel mapResultSetToUser(ResultSet rs) throws SQLException {
@@ -32,12 +31,11 @@ public class UserDAO implements IUserDAO {
         }
 
         return new UserModel(
-            rs.getInt("id_user"),
-            rs.getString("name"),
-            rs.getString("email"),
-            rs.getString("phone"),
-            activo
-        );
+                rs.getInt("id_user"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("phone"),
+                activo);
     }
 
     @Override
@@ -62,30 +60,6 @@ public class UserDAO implements IUserDAO {
         }
 
         return isRegistered;
-    }
-
-    @Override
-    public List<UserModel> listUsers() {
-        String sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1";
-        List<UserModel> usersList = new ArrayList<>();
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                     ResultSet rs = ps.executeQuery()) {
-                    
-                    while (rs.next()) {
-                        UserModel user = mapResultSetToUser(rs);
-                        usersList.add(user);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error listing users: ", e);
-        }
-
-        return usersList;
     }
 
     @Override
@@ -167,18 +141,18 @@ public class UserDAO implements IUserDAO {
         boolean hasQuery = query != null && !query.trim().isEmpty();
 
         if (hasQuery) {
-            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 AND (name LIKE ? OR email LIKE ?) LIMIT ? OFFSET ?";
+            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 AND (name LIKE ? OR email LIKE ?) ORDER BY id_user DESC LIMIT ? OFFSET ?";
         } else {
-            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 LIMIT ? OFFSET ?";
+            sql = "SELECT id_user, name, email, phone, activo FROM users WHERE activo = 1 ORDER BY id_user DESC LIMIT ? OFFSET ?";
         }
-        
+
         List<UserModel> usersList = new ArrayList<>();
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    
+
                     if (hasQuery) {
                         String likeQuery = "%" + query.trim() + "%";
                         ps.setString(1, likeQuery);
@@ -215,14 +189,14 @@ public class UserDAO implements IUserDAO {
         } else {
             sql = "SELECT COUNT(*) FROM users WHERE activo = 1";
         }
-        
+
         int count = 0;
 
         try {
             Connection conn = ConnectionDB.connect();
             if (conn != null) {
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    
+
                     if (hasQuery) {
                         String likeQuery = "%" + query.trim() + "%";
                         ps.setString(1, likeQuery);

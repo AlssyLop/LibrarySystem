@@ -11,9 +11,6 @@ import model.UserModel;
  */
 public interface IUserDAO {
     boolean registerUser(UserModel user);
-
-    List<UserModel> listUsers();
-
     boolean deleteUser(int idUser);
     boolean updateUser(UserModel user);
     boolean updateUserPartial(int idUser, Map<String, Object> changes);

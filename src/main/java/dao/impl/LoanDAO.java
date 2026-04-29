@@ -13,14 +13,12 @@ import model.LoanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author Usuario
  */
 public class LoanDAO implements ILoanDAO {
     private static final Logger logger = LoggerFactory.getLogger(LoanDAO.class);
-
 
     private LoanModel mapResultSetToLoan(ResultSet rs) throws SQLException {
         boolean returned = false;
@@ -40,11 +38,13 @@ public class LoanDAO implements ILoanDAO {
 
         try {
             loan.setUserName(rs.getString(7));
-        } catch (SQLException ignore) {}
+        } catch (SQLException ignore) {
+        }
 
         try {
             loan.setBookTitle(rs.getString(8));
-        } catch (SQLException ignore) {}
+        } catch (SQLException ignore) {
+        }
 
         return loan;
     }
@@ -100,71 +100,17 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public List<LoanModel> loanHistory() {
-        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                "u.name AS user_name, b.title AS book_title " +
-                "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book";
-        List<LoanModel> loansList = new ArrayList<>();
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                        ResultSet rs = ps.executeQuery()) {
-
-                    while (rs.next()) {
-                        LoanModel loan = mapResultSetToLoan(rs);
-                        loansList.add(loan);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error fetching loan history: ", e);
-        }
-
-        return loansList;
-    }
-
-    @Override
-    public List<LoanModel> listActiveLoans() {
-        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                "u.name AS user_name, b.title AS book_title " +
-                "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book " +
-                "WHERE l.returned = 0";
-        List<LoanModel> loansList = new ArrayList<>();
-
-        try {
-            Connection conn = ConnectionDB.connect();
-            if (conn != null) {
-                try (PreparedStatement ps = conn.prepareStatement(sql);
-                        ResultSet rs = ps.executeQuery()) {
-
-                    while (rs.next()) {
-                        LoanModel loan = mapResultSetToLoan(rs);
-                        loansList.add(loan);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error fetching active loans: ", e);
-        }
-
-        return loansList;
-    }
-
-    @Override
     public List<LoanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder(
-                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                        "u.name AS user_name, b.title AS book_title " +
-                        "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
-                        +
-                        "WHERE l.returned = 0");
+                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, "
+                        + "u.name AS user_name, b.title AS book_title "
+                        + "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                        + "WHERE l.returned = 0");
         if (idUserSearch != null)
             sql.append(" AND l.id_user = ?");
         if (dateFilter != null)
             sql.append(" AND DATE(l.loan_date) = ?");
-        sql.append(" LIMIT ? OFFSET ?");
+        sql.append(" ORDER BY l.id_loan DESC LIMIT ? OFFSET ?");
 
         List<LoanModel> loansList = new ArrayList<>();
 
@@ -229,16 +175,15 @@ public class LoanDAO implements ILoanDAO {
     @Override
     public List<LoanModel> loanHistoryPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder(
-                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, " +
-                        "u.name AS user_name, b.title AS book_title " +
-                        "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
-                        +
-                        "WHERE 1=1");
+                "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, "
+                        + "u.name AS user_name, b.title AS book_title "
+                        + "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                        + "WHERE 1=1");
         if (idUserSearch != null)
             sql.append(" AND l.id_user = ?");
         if (dateFilter != null)
             sql.append(" AND DATE(l.loan_date) = ?");
-        sql.append(" LIMIT ? OFFSET ?");
+        sql.append(" ORDER BY l.id_loan DESC LIMIT ? OFFSET ?");
 
         List<LoanModel> loansList = new ArrayList<>();
 
