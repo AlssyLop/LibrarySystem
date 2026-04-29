@@ -7,33 +7,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import dao.IAuthorDAO;
-import dao.IBookDAO;
-import dao.ILoanDAO;
-import dao.IUserDAO;
-import dao.impl.AuthorDAO;
-import dao.impl.BookDAO;
-import dao.impl.LoanDAO;
-import dao.impl.UserDAO;
+import service.AuthorService;
+import service.BookService;
+import service.LoanService;
+import service.UserService;
 
 @WebServlet(name = "DashboardServlet", urlPatterns = { "/dashboard" })
 public class DashboardController extends HttpServlet {
 
-    private IUserDAO userDAO = new UserDAO();
-    private ILoanDAO loanDAO = new LoanDAO();
-    private IAuthorDAO authorDAO = new AuthorDAO();
-    private IBookDAO bookDAO = new BookDAO();
+    private UserService userService = new UserService();
+    private LoanService loanService = new LoanService();
+    private AuthorService authorService = new AuthorService();
+    private BookService bookService = new BookService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Contamos totales simples usando el query vacio en los metodos count
-        int totalUsers = userDAO.countUsers("");
-        int totalBooks = bookDAO.countBooks("");
-        int totalAuthors = authorDAO.countAuthors("");
-        int activeLoans = loanDAO.listActiveLoans().size();
-        int totalLoans = loanDAO.loanHistory().size();
+        // Contamos totales de forma eficiente usando los servicios
+        int totalUsers = userService.countUsers("");
+        int totalBooks = bookService.countBooks("");
+        int totalAuthors = authorService.countAuthors("");
+        int activeLoans = loanService.countActiveLoans(null, null);
+        int totalLoans = loanService.countHistoryLoans(null, null);
 
         request.setAttribute("totalUsers", totalUsers);
         request.setAttribute("totalBooks", totalBooks);
