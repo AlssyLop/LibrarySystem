@@ -143,49 +143,61 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    // Event Delegation for Modals and Actions
+    document.body.addEventListener('click', (e) => {
+        // Open Generic Modal
+        const openModalBtn = e.target.closest('.js-open-modal');
+        if (openModalBtn) {
+            const targetId = openModalBtn.getAttribute('data-target');
+            if (targetId) document.getElementById(targetId).classList.add('active');
+            return;
+        }
+
+        // Edit User
+        const editUserBtn = e.target.closest('.js-edit-user');
+        if (editUserBtn) {
+            document.getElementById('editUserId').value = editUserBtn.getAttribute('data-id');
+            document.getElementById('editUserName').value = editUserBtn.getAttribute('data-name');
+            document.getElementById('editUserEmail').value = editUserBtn.getAttribute('data-email');
+            document.getElementById('editUserPhone').value = editUserBtn.getAttribute('data-phone');
+            document.getElementById('modalEditUser').classList.add('active');
+            return;
+        }
+
+        // Edit Author
+        const editAuthorBtn = e.target.closest('.js-edit-author');
+        if (editAuthorBtn) {
+            document.getElementById('editAuthorId').value = editAuthorBtn.getAttribute('data-id');
+            document.getElementById('editAuthorName').value = editAuthorBtn.getAttribute('data-name');
+            document.getElementById('editAuthorNationality').value = editAuthorBtn.getAttribute('data-nationality');
+            document.getElementById('modalEditAuthor').classList.add('active');
+            return;
+        }
+
+        // Edit Book
+        const editBookBtn = e.target.closest('.js-edit-book');
+        if (editBookBtn) {
+            document.getElementById('editBookId').value = editBookBtn.getAttribute('data-id');
+            document.getElementById('editBookTitle').value = editBookBtn.getAttribute('data-title');
+            document.getElementById('editBookIsbn').value = editBookBtn.getAttribute('data-isbn');
+            document.getElementById('editBookYear').value = editBookBtn.getAttribute('data-year');
+            document.getElementById('editBookAuthorId').value = editBookBtn.getAttribute('data-authorid');
+            document.getElementById('modalEditBook').classList.add('active');
+            return;
+        }
+
+        // Return Loan
+        const returnLoanBtn = e.target.closest('.js-return-loan');
+        if (returnLoanBtn) {
+            document.getElementById('returnLoanId').value = returnLoanBtn.getAttribute('data-id');
+            document.getElementById('modalReturnLoan').classList.add('active');
+            return;
+        }
+    });
 });
-
-// Function to open specific modal
-function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
-}
-
-// User Modal Population
-function openUserEditModal(id, name, email, phone) {
-    document.getElementById('editUserId').value = id;
-    document.getElementById('editUserName').value = name;
-    document.getElementById('editUserEmail').value = email;
-    document.getElementById('editUserPhone').value = phone;
-    openModal('modalEditUser');
-}
-
-// Author Modal Population
-function openAuthorEditModal(id, name, nationality) {
-    document.getElementById('editAuthorId').value = id;
-    document.getElementById('editAuthorName').value = name;
-    document.getElementById('editAuthorNationality').value = nationality;
-    openModal('modalEditAuthor');
-}
-
-// Book Modal Population
-function openBookEditModal(id, title, isbn, year, authorId) {
-    document.getElementById('editBookId').value = id;
-    document.getElementById('editBookTitle').value = title;
-    document.getElementById('editBookIsbn').value = isbn;
-    document.getElementById('editBookYear').value = year;
-    document.getElementById('editBookAuthorId').value = authorId;
-    openModal('modalEditBook');
-}
-
-// Return Loan Population
-function openReturnLoanModal(id) {
-    document.getElementById('returnLoanId').value = id;
-    openModal('modalReturnLoan');
-}
 
 // AJAX Form Submission Handler
 function setupAjaxForm(formId, modalId) {
-    
     const form = document.getElementById(formId);
     if (!form) return;
 
@@ -204,13 +216,11 @@ function setupAjaxForm(formId, modalId) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData.toString()
         })
-            .then(r => r.text())
-            .then(text => {
+            .then(r => r.json())
+            .then(data => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
 
-                let data;
-                data = JSON.parse(text);
                 if (data.status === 'success') {
                     document.getElementById(modalId).classList.remove('active');
                     window.location.reload();
@@ -232,3 +242,4 @@ setupAjaxForm('formCreateUser', 'modalCreateUser');
 setupAjaxForm('formCreateBook', 'modalCreateBook');
 setupAjaxForm('formEditBook', 'modalEditBook');
 setupAjaxForm('formCreateLoan', 'modalCreateLoan');
+

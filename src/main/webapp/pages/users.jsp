@@ -17,7 +17,7 @@
                     <input type="text" name="query" class="form-control" placeholder="Buscar usuario..." value="${query}">
                     <button type="submit" class="btn btn-primary"><i data-lucide="search"></i> Buscar</button>
                 </form>
-                <button class="btn btn-primary" onclick="openModal('modalCreateUser')">
+                <button class="btn btn-primary js-open-modal" data-target="modalCreateUser">
                     <i data-lucide="plus"></i> Nuevo
                 </button>
             </div>
@@ -47,7 +47,7 @@
                         <td><%= u.getPhone() %></td>
                         <td>
                             <div class="actions-col">
-                                <button class="btn-icon amber" onclick="openUserEditModal(<%= u.getIdUser() %>, '<%= u.getName() %>', '<%= u.getEmail() %>', '<%= u.getPhone() %>')">
+                                <button class="btn-icon amber js-edit-user" data-id="<%= u.getIdUser() %>" data-name="<%= u.getName() %>" data-email="<%= u.getEmail() %>" data-phone="<%= u.getPhone() %>">
                                     <i data-lucide="edit-2"></i>
                                 </button>
                                 <a href="${pageContext.request.contextPath}/users?action=delete&id=<%= u.getIdUser() %>" class="btn-icon danger btn-delete">

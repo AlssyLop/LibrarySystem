@@ -15,7 +15,7 @@
         <div class="header-container">
             <h1 class="header-title">Préstamos</h1>
             <div class="search-bar">
-                <button class="btn btn-primary" onclick="openModal('modalCreateLoan')">
+                <button class="btn btn-primary js-open-modal" data-target="modalCreateLoan">
                     <i data-lucide="plus"></i> Nuevo Préstamo
                 </button>
             </div>

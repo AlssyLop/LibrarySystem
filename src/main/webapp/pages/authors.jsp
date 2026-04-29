@@ -17,7 +17,7 @@
                     <input type="text" name="query" class="form-control" placeholder="Buscar autor..." value="${query}">
                     <button type="submit" class="btn btn-primary"><i data-lucide="search"></i> Buscar</button>
                 </form>
-                <button class="btn btn-primary" onclick="openModal('modalCreateAuthor')">
+                <button class="btn btn-primary js-open-modal" data-target="modalCreateAuthor">
                     <i data-lucide="plus"></i> Nuevo
                 </button>
             </div>
@@ -45,7 +45,7 @@
                         <td><%= a.getNationality() %></td>
                         <td>
                             <div class="actions-col">
-                                <button class="btn-icon amber" onclick="openAuthorEditModal(<%= a.getIdAuthor() %>, '<%= a.getName() %>', '<%= a.getNationality() %>')">
+                                <button class="btn-icon amber js-edit-author" data-id="<%= a.getIdAuthor() %>" data-name="<%= a.getName() %>" data-nationality="<%= a.getNationality() %>">
                                     <i data-lucide="edit-2"></i>
                                 </button>
                             </div>

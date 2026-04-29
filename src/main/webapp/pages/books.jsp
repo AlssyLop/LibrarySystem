@@ -23,7 +23,7 @@
                                     <button type="submit" class="btn btn-primary"><i data-lucide="search"></i>
                                         Buscar</button>
                                 </form>
-                                <button class="btn btn-primary" onclick="openModal('modalCreateBook')">
+                                <button class="btn btn-primary js-open-modal" data-target="modalCreateBook">
                                     <i data-lucide="plus"></i> Nuevo
                                 </button>
                             </div>
