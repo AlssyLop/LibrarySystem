@@ -1,17 +1,14 @@
 package controller;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import dao.IUserDAO;
-import dao.impl.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.userModel;
+import model.UserModel;
+import service.UserService;
 
 /**
  * Servlet encargado del tráfico HTTP relacionado a los Usuarios
@@ -19,7 +16,7 @@ import model.userModel;
 @WebServlet(name = "UserServlet", urlPatterns = { "/users" })
 public class UserController extends HttpServlet {
 
-    private IUserDAO userDAO = new UserDAO();
+    private UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,13 +31,13 @@ public class UserController extends HttpServlet {
             String query = request.getParameter("query");
             if (query == null)
                 query = "";
-            java.util.List<model.userModel> usersList = this.userDAO.listUsersPaginated(10, 0, query);
+            java.util.List<model.UserModel> usersList = this.userService.listUsersPaginated(10, 0, query);
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             StringBuilder json = new StringBuilder("[");
             for (int i = 0; i < usersList.size(); i++) {
-                model.userModel u = usersList.get(i);
+                model.UserModel u = usersList.get(i);
                 json.append("{\"id\":").append(u.getIdUser()).append(",\"text\":\"").append(u.getIdUser()).append(" - ")
                         .append(u.getName().replace("\"", "\\\"")).append("\"}");
                 if (i < usersList.size() - 1)
@@ -68,9 +65,9 @@ public class UserController extends HttpServlet {
 
             int offset = (page - 1) * limit;
 
-            request.setAttribute("users", this.userDAO.listUsersPaginated(limit, offset, query));
+            request.setAttribute("users", this.userService.listUsersPaginated(limit, offset, query));
 
-            int totalRecords = this.userDAO.countUsers(query);
+            int totalRecords = this.userService.countUsers(query);
             int totalPages = (int) Math.ceil((double) totalRecords / limit);
 
             request.setAttribute("currentPage", page);
@@ -81,7 +78,7 @@ public class UserController extends HttpServlet {
 
         } else if ("delete".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
-            this.userDAO.deleteUser(id);
+            this.userService.deleteUser(id);
             response.sendRedirect("users");
         }
     }
@@ -104,15 +101,12 @@ public class UserController extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try {
-            userModel user = validateUser(true, request.getParameter("idUser"),
-                    request.getParameter("name"), request.getParameter("email"),
+            userService.registerUser(
+                    request.getParameter("idUser"),
+                    request.getParameter("name"), 
+                    request.getParameter("email"),
                     request.getParameter("phone"));
-            boolean ok = this.userDAO.registerUser(user);
-            if (ok) {
-                response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario registrado exitosamente.\"}");
-            } else {
-                response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al registrar el usuario.\"}");
-            }
+            response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario registrado exitosamente.\"}");
         } catch (Exception e) {
             response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
         }
@@ -122,118 +116,18 @@ public class UserController extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try {
-            userModel validatedUser = validateUser(false, request.getParameter("idUser"),
-                    request.getParameter("name"), request.getParameter("email"),
+            userService.updateUser(
+                    request.getParameter("idUser"),
+                    request.getParameter("name"), 
+                    request.getParameter("email"),
                     request.getParameter("phone"));
-
-            // Obtener usuario actual de la DB para comparar
-            userModel currentUser = userDAO.searchUser(validatedUser.getIdUser());
-
-            // Construir mapa con solo los campos que cambiaron
-            Map<String, Object> changes = new HashMap<>();
-            if (!currentUser.getName().equals(validatedUser.getName())) {
-                changes.put("name", validatedUser.getName());
-            }
-            if (!currentUser.getEmail().equals(validatedUser.getEmail())) {
-                changes.put("email", validatedUser.getEmail());
-            }
-            if (!currentUser.getPhone().equals(validatedUser.getPhone())) {
-                changes.put("phone", validatedUser.getPhone());
-            }
-
-            if (changes.isEmpty()) {
-                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
-                return;
-            }
-
-            boolean ok = userDAO.updateUserPartial(validatedUser.getIdUser(), changes);
-            if (ok) {
-                response.getWriter()
-                        .write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
-            } else {
-                response.getWriter().write("{\"status\":\"error\",\"message\":\"Error al actualizar el usuario.\"}");
-            }
+            response.getWriter().write("{\"status\":\"success\",\"message\":\"Usuario actualizado exitosamente.\"}");
         } catch (Exception e) {
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
-        }
-    }
-
-    private userModel validateUser(boolean isRegister, String idUser, String name, String email, String phone)
-            throws Exception {
-
-        String message = "";
-        try {
-            // --- ID ---
-            int IDuser = 0;
-            if (!isRegister) {
-                message = "El usuario es requerido.";
-                messageException(idUser == null || idUser.trim().isEmpty(), message);
-                idUser = idUser.replaceAll("\\s+", "");
-                message = "Usuario inválido";
-                IDuser = Integer.parseInt(idUser);
-                messageException(IDuser < 1, message);
-                messageException(!this.userDAO.checkIdUserExists(IDuser),
-                        "Usuario no válido. No se encuentra registrado.");
-            }
-
-            // --- NAME ---
-            message = "El nombre es requerido.";
-            messageException(name == null || name.trim().isEmpty(), message);
-            name = String.join(" ", name.trim().split("\\s+")).toUpperCase();
-            messageException(!name.matches("^[\\p{L}][\\p{L} .'-]*$"),
-                    "Nombre inválido");
-            messageException(name.length() < 3 || name.length() > 100,
-                    "El nombre debe tener entre 3 y 100 caracteres.");
-
-            // --- EMAIL ---
-            message = "Email requerido.";
-            messageException(email == null || email.trim().isEmpty(), message);
-            email = email.trim().toLowerCase();
-            message = "Email inválido.";
-            messageException(email.matches(".*\\s.*"), message);
-            String[] emailParts = email.split("@");
-            messageException(emailParts.length != 2 || emailParts[0].length() > 50 || emailParts[1].length() > 50,
-                    message);
-            messageException(!email.matches(
-                    "^[a-z0-9_\\.\\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$"),
-                    message);
-            messageException(email.length() > 100,
-                    "Email inválido. Supera el máximo de 100 caracteres.");
-            // Verificar duplicado de email
-            if (isRegister) {
-                messageException(this.userDAO.checkEmailExists(email),
-                        "El email ya se encuentra registrado.");
+            if (e.getMessage().equals("No se detectaron cambios.")) {
+                response.getWriter().write("{\"status\":\"info\",\"message\":\"No se detectaron cambios.\"}");
             } else {
-                userModel currentUser = this.userDAO.searchUser(IDuser);
-                if (!currentUser.getEmail().equals(email)) {
-                    messageException(this.userDAO.checkEmailExists(email),
-                            "El email ya se encuentra asignado a otro usuario.");
-                }
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"" + e.getMessage() + "\"}");
             }
-
-            // --- PHONE ---
-            message = "Teléfono requerido.";
-            messageException(phone == null || phone.trim().isEmpty(), message);
-            phone = phone.replaceAll("\\s+", "");
-            boolean hasPlus = phone.startsWith("+");
-            phone = phone.replaceAll("[^0-9]", "");
-            if (hasPlus) {
-                phone = "+" + phone;
-            }
-            messageException(phone.length() < 10 || phone.length() > 15,
-                    "Teléfono inválido. Debe tener entre 10 y 15 caracteres.");
-
-            return new userModel(IDuser, name, email, phone);
-
-        } catch (NullPointerException e) {
-            throw new Exception(message);
-        } catch (NumberFormatException e) {
-            throw new Exception(message);
         }
-    }
-
-    private void messageException(boolean condition, String message) throws Exception {
-        if (condition)
-            throw new Exception(message);
     }
 }
