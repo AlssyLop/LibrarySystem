@@ -76,8 +76,9 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
-    public boolean returnBook(int idLoan, Date returnDate) {
+    public boolean returnBook(int idLoan) {
         String sql = "UPDATE loans SET return_date = ?, returned = 1 WHERE id_loan = ?";
+        Date returnDate = new Date(System.currentTimeMillis()); // Fecha actual de devolucion
         boolean isReturned = false;
 
         try {

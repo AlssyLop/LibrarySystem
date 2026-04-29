@@ -39,6 +39,13 @@ public class LoanService {
             throw new Exception("Error al registrar el préstamo.");
         }
     }
+    
+    public void returnBook(int idLoan) throws Exception {
+        boolean ok = loanDAO.returnBook(idLoan);
+        if (!ok) {
+            throw new Exception("Error al registrar el préstamo.");
+        }
+    }
 
     private LoanModel validateLoan(String idUserStr, String idBookStr) throws Exception {
         String message = "";

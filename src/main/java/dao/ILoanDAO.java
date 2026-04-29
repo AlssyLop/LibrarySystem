@@ -10,7 +10,7 @@ import model.LoanModel;
  */
 public interface ILoanDAO {
     boolean registerLoan(LoanModel loan);
-    boolean returnBook(int idLoan, Date returnDate);
+    boolean returnBook(int idLoan);
     List<LoanModel> loanHistory();
     List<LoanModel> listActiveLoans();
     List<LoanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter);
