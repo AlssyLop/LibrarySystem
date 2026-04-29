@@ -16,43 +16,32 @@ Esta sección detalla los componentes técnicos y la arquitectura principal del 
 | **Plataforma Enterprise**| Jakarta EE 10 (Servlets y plantillas JSP) |
 | **Servidor de Apps** | Eclipse GlassFish 7.0.25 |
 | **Base de Datos** | MySQL 8.0 |
-| **Controlador JDBC** | MySQL Connector/J 9.6.0 |
-| **Herramienta de Build**| Apache Maven |
+| **Manejo de JSON** | Jackson Databind 2.18.2 |
+| **Logging** | SLF4J + Log4j2 |
 | **Frontend** | HTML5, CSS3 Nativo (Variables), JavaScript Vanilla |
 | **Recursos Visuales** | Lucide Icons (vía CDN), Tipografías de Google Fonts |
 
-### Arquitectura de Capas (MVC)
+### Arquitectura de Capas (MVC + Service Layer)
 
 El proyecto mantiene una estricta separación de responsabilidades:
 
-*   **`webapp/pages/` (Vistas):** Documentos JSP reusables para la interfaz gráfica y layouts como modales o cabeceras estáticas.
-*   **`controller/` (Controladores):** Componentes (`HttpServlet`) que actúan como orquestadores del sistema, manejando peticiones HTTP (GET/POST), evaluando reglas de negocio y entregando respuestas (JSP o JSON).
-*   **`dao/` y `dao/impl/` (Acceso a Datos):** Interfaces de abstracción y sus implementaciones concretas de JDBC usando conectividad controlada por `PreparedStatement`.
-*   **`model/` (Entidades):** Objetos de transferencia o de valor que representan tablas únicas (Usuario, Libro, Préstamo).
-*   **`CharacterEncodingFilter` (Filtro):** Middleware que garantiza que todas las peticiones y respuestas utilicen codificación UTF-8, resolviendo problemas de caracteres especiales y acentos.
-
-
-![alt text](images/diagramLibrarySystemMVC.png)
-
-### Esquema de la Base de Datos Relacional
-
-![alt text](images/schemaDB.png)
+*   **`webapp/pages/` (Vistas):** Documentos JSP reusables para la interfaz gráfica.
+*   **`controller/` (Controladores):** Servlets que orquestan el tráfico HTTP. Usan `Jackson` para retornar respuestas JSON estandarizadas.
+*   **`service/` (Capa de Negocio):** Centraliza la lógica de validación, reglas de negocio y orquestación entre modelos.
+*   **`dao/` (Acceso a Datos):** Interfaces e implementaciones JDBC. Uso intensivo de `PreparedStatement` y logging profesional con SLF4J.
+*   **`model/` (Entidades):** POJOs que representan las entidades del dominio.
 
 ---
 
 ## Guía de Instalación y Despliegue
 
-Estos pasos explican cómo pasar de un entorno limpio a tener la aplicación completamente funcional en local.
-
 ### 1. Prerrequisitos de Entorno
-Asegúrate de contar con los siguientes elementos instalados y en el PATH de tu máquina:
 - **JDK 17**.
 - **Apache Maven 3.8** o superior.
 - **MySQL 8.0** o superior.
-- **Eclipse GlassFish 7.0.25** (Configurado con su dominio por defecto, `domain1`).
+- **Eclipse GlassFish 7.0.25**.
 
 ### 2. Configuración de Base de Datos
-Ingresa a tu gestor MySQL (línea de comandos o cliente visual) y crea el esquema:
 ```sql
 CREATE DATABASE DBlibrary;
 
@@ -135,50 +124,41 @@ Permite filtros combinados que ajustan iterativamente un `StringBuilder` en SQL,
 
 ![alt text](images/loans.png)
 
-### Endpoints AJAX 
-Como referencia de la API reactiva interna que posee el sistema (Devuelve respuestas asíncronas tipo JSON al cliente JavaScript HTML):
+---
 
-#### 1. Buscar Usuarios
+## Funcionalidades y Optimizaciones Recientes
+
+### 1. Sistema de Notificaciones Toast
+Se eliminaron los `alert()` nativos del navegador. Ahora el sistema utiliza un sistema de **Toasts** customizado en `app.js` que proporciona feedback visual no bloqueante y estéticamente superior.
+
+### 2. Eliminación de Usuarios vía AJAX
+La eliminación de usuarios ahora se realiza mediante un modal de confirmación y una petición asíncrona, evitando recargas de página innecesarias y mejorando la UX.
+
+### 3. Estandarización de Respuestas API
+Todos los controladores han sido refactores para devolver objetos JSON consistentes (`{status, message, data}`) utilizando la librería Jackson, eliminando la concatenación manual de strings.
+
+### 4. Consultas Optimizadas y Orden Descendente
+Los listados (DAO) ahora devuelven los registros en orden descendente por defecto (`ORDER BY id DESC`), asegurando que las acciones más recientes sean visibles de inmediato.
+
+---
+
+## Endpoints AJAX 
+
+#### 1. Buscar Entidades (Autocomplete)
+
 *   `GET /users?action=apiSearch&query=...`
-
-#### 2. Buscar Autores
 *   `GET /authors?action=apiSearch&query=...`
-
-#### 3. Buscar Libros
 *   `GET /books?action=apiSearch&query=...`
 
-#### 4. Registrar/Actualizar Usuario (AJAX)
+#### 2. Operaciones de Usuario (AJAX)
 *   `POST /users`
-    `Content-Type: application/x-www-form-urlencoded`
-    `action=register` ó `action=update`
-    `&name=Nombre Completo`
-    `&email=usuario@ejemplo.com`
-    `&phone=+573001234567`
+    `action=register | update | delete`
 
-#### 5. Registrar/Actualizar Autor (AJAX)
-*   `POST /authors`
-    `Content-Type: application/x-www-form-urlencoded`
-    `action=register` ó `action=update`
-    `&name=Nombre Autor`
-    `&nationality=País`
-
-#### 6. Registrar/Actualizar Libro (AJAX)
-*   `POST /books`
-    `Content-Type: application/x-www-form-urlencoded`
-    `action=register` ó `action=update`
-    `&title=Nuevo Libro Test`
-    `&isbn=999-888-777`
-    `&year=2024`
-    `&idAuthor=1`
-
-#### 7. Registrar Préstamo (AJAX)
-*   `POST /loans`
-    `Content-Type: application/x-www-form-urlencoded`
-    `action=registerAjax`
-    `&idUser=1`
-    `&idBook=1`
+#### 3. Ciclo de Préstamos
+*   `POST /loans?action=registerAjax` (Nuevo préstamo)
+*   `POST /loans?action=return` (Devolución)
 
 ---
 
 ## 📄 Licencia
-Este proyecto es desarrollado y distribuido exclusivamente para propósitos formativos y académicos.
+Este proyecto es desarrollado exclusivamente para propósitos formativos y académicos.
