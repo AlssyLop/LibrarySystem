@@ -10,12 +10,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.LoanModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
  * @author Usuario
  */
 public class LoanDAO implements ILoanDAO {
+    private static final Logger logger = LoggerFactory.getLogger(LoanDAO.class);
+
 
     private LoanModel mapResultSetToLoan(ResultSet rs) throws SQLException {
         boolean returned = false;
@@ -64,7 +69,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error registering loan: " + e.getMessage());
+            logger.error("Error registering loan: ", e);
         }
 
         return isRegistered;
@@ -87,7 +92,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error returning book: " + e.getMessage());
+            logger.error("Error returning book: ", e);
         }
 
         return isReturned;
@@ -113,7 +118,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching loan history: " + e.getMessage());
+            logger.error("Error fetching loan history: ", e);
         }
 
         return loansList;
@@ -140,7 +145,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching active loans: " + e.getMessage());
+            logger.error("Error fetching active loans: ", e);
         }
 
         return loansList;
@@ -182,7 +187,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching active loans paginated: " + e.getMessage());
+            logger.error("Error fetching active loans paginated: ", e);
         }
 
         return loansList;
@@ -215,7 +220,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error counting active loans: " + e.getMessage());
+            logger.error("Error counting active loans: ", e);
         }
         return total;
     }
@@ -256,7 +261,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching loan history paginated: " + e.getMessage());
+            logger.error("Error fetching loan history paginated: ", e);
         }
 
         return loansList;
@@ -289,7 +294,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error counting loan history: " + e.getMessage());
+            logger.error("Error counting loan history: ", e);
         }
         return total;
     }
@@ -311,7 +316,7 @@ public class LoanDAO implements ILoanDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking active loan: " + e.getMessage());
+            logger.error("Error checking active loan: ", e);
         }
 
         return exists;

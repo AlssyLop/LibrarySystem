@@ -10,12 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import model.BookModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
  * @author Usuario
  */
 public class BookDAO implements IBookDAO {
+    private static final Logger logger = LoggerFactory.getLogger(BookDAO.class);
+
 
     private BookModel mapResultSetToBook(ResultSet rs) throws SQLException {
         BookModel b = new BookModel(
@@ -52,7 +57,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error registering book: " + e.getMessage());
+            logger.error("Error registering book: ", e);
         }
 
         return isRegistered;
@@ -78,7 +83,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error searching book: " + e.getMessage());
+            logger.error("Error searching book: ", e);
         }
 
         return book;
@@ -103,7 +108,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing books: " + e.getMessage());
+            logger.error("Error listing books: ", e);
         }
 
         return booksList;
@@ -142,7 +147,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error updating book partial: " + e.getMessage());
+            logger.error("Error updating book partial: ", e);
         }
         return isUpdated;
     }
@@ -188,7 +193,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing books paginated: " + e.getMessage());
+            logger.error("Error listing books paginated: ", e);
         }
 
         return booksList;
@@ -226,7 +231,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error counting books: " + e.getMessage());
+            logger.error("Error counting books: ", e);
         }
 
         return count;
@@ -248,7 +253,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking ISBN: " + e.getMessage());
+            logger.error("Error checking ISBN: ", e);
         }
 
         return exists;
@@ -270,7 +275,7 @@ public class BookDAO implements IBookDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking ID book: " + e.getMessage());
+            logger.error("Error checking ID book: ", e);
         }
 
         return exists;

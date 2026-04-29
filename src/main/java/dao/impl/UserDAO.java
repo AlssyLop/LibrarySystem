@@ -10,12 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import model.UserModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Implementation of IUserDAO
  * @author Usuario
  */
 public class UserDAO implements IUserDAO {
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
+
 
     // Centralized mapping from ResultSet to UserModel object
     private UserModel mapResultSetToUser(ResultSet rs) throws SQLException {
@@ -53,7 +58,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error registering user: " + e.getMessage());
+            logger.error("Error registering user: ", e);
         }
 
         return isRegistered;
@@ -77,7 +82,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing users: " + e.getMessage());
+            logger.error("Error listing users: ", e);
         }
 
         return usersList;
@@ -99,7 +104,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error deleting user: " + e.getMessage());
+            logger.error("Error deleting user: ", e);
         }
 
         return isDeleted;
@@ -125,7 +130,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error updating user: " + e.getMessage());
+            logger.error("Error updating user: ", e);
         }
 
         return isUpdated;
@@ -150,7 +155,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error searching user: " + e.getMessage());
+            logger.error("Error searching user: ", e);
         }
 
         return user;
@@ -194,7 +199,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing users paginated: " + e.getMessage());
+            logger.error("Error listing users paginated: ", e);
         }
 
         return usersList;
@@ -232,7 +237,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error counting users: " + e.getMessage());
+            logger.error("Error counting users: ", e);
         }
 
         return count;
@@ -273,7 +278,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error updating user partial: " + e.getMessage());
+            logger.error("Error updating user partial: ", e);
         }
         return isUpdated;
     }
@@ -294,7 +299,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking email: " + e.getMessage());
+            logger.error("Error checking email: ", e);
         }
 
         return exists;
@@ -316,7 +321,7 @@ public class UserDAO implements IUserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking ID user: " + e.getMessage());
+            logger.error("Error checking ID user: ", e);
         }
 
         return exists;

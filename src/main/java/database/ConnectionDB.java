@@ -10,8 +10,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class ConnectionDB {
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionDB.class);
+
    private static final Properties props = new Properties();
 
    static {
@@ -19,10 +24,10 @@ public class ConnectionDB {
          if (input != null) {
             props.load(input);
          } else {
-            System.out.println("Advertencia: No se encontró el archivo database.properties en resources.");
+            logger.info("Advertencia: No se encontró el archivo database.properties en resources.");
          }
       } catch (Exception e) {
-         System.out.println("Error cargando database.properties: " + e.getMessage());
+         logger.error("Error cargando database.properties: ", e);
       }
    }
 
@@ -37,14 +42,14 @@ public class ConnectionDB {
                props.getProperty("db.user"), 
                props.getProperty("db.password")
             );
-            System.out.println("Conexión a base de datos OK");
+            logger.info("Conexión a base de datos OK");
          }
       } catch (SQLException e) {
-         System.out.println("Error SQL: " + e.getMessage());
+         logger.error("Error SQL: ", e);
       } catch (ClassNotFoundException e) {
-         System.out.println("Driver no encontrado: " + e.getMessage());
+         logger.error("Driver no encontrado: ", e);
       } catch (Exception e) {
-         System.out.println("Error general: " + e.getMessage());
+         logger.error("Error general: ", e);
       }
       return conn;
    }
@@ -53,10 +58,10 @@ public class ConnectionDB {
       try {
          if (conn != null && !conn.isClosed()) {
             conn.close();
-            System.out.println("Conexión cerrada");
+            logger.info("Conexión cerrada");
          }
       } catch (SQLException e) {
-         System.out.println("Error al cerrar conexión: " + e.getMessage());
+         logger.error("Error al cerrar conexión: ", e);
       }
    }
 }

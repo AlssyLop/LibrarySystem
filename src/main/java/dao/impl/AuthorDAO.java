@@ -10,12 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import model.AuthorModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
  * @author Usuario
  */
 public class AuthorDAO implements IAuthorDAO {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorDAO.class);
+
 
     // Centralized mapping from ResultSet to AuthorModel object
     private AuthorModel mapResultSetToAuthor(ResultSet rs) throws SQLException {
@@ -27,7 +32,7 @@ public class AuthorDAO implements IAuthorDAO {
 
     @Override
     public boolean registerAuthor(AuthorModel author) {
-        System.out.println(author);
+        logger.info("{}", author);
         String sql = "INSERT INTO authors (name, nationality) VALUES (?, ?)";
         boolean isRegistered = false;
 
@@ -43,7 +48,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error registering author: " + e.getMessage());
+            logger.error("Error registering author: ", e);
         }
 
         return isRegistered;
@@ -67,7 +72,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing authors: " + e.getMessage());
+            logger.error("Error listing authors: ", e);
         }
 
         return authorsList;
@@ -91,7 +96,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error updating author: " + e.getMessage());
+            logger.error("Error updating author: ", e);
         }
 
         return isUpdated;
@@ -130,7 +135,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error updating author partial: " + e.getMessage());
+            logger.error("Error updating author partial: ", e);
         }
         return isUpdated;
     }
@@ -154,7 +159,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error searching author: " + e.getMessage());
+            logger.error("Error searching author: ", e);
         }
 
         return author;
@@ -196,7 +201,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing authors paginated: " + e.getMessage());
+            logger.error("Error listing authors paginated: ", e);
         }
 
         return authorsList;
@@ -232,7 +237,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error counting authors: " + e.getMessage());
+            logger.error("Error counting authors: ", e);
         }
 
         return count;
@@ -254,7 +259,7 @@ public class AuthorDAO implements IAuthorDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking ID Author: " + e.getMessage());
+            logger.error("Error checking ID Author: ", e);
         }
 
         return exists;
