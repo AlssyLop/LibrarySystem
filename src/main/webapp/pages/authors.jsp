@@ -1,5 +1,5 @@
 <%@page import="java.util.List"%>
-<%@page import="model.authorModel"%>
+<%@page import="model.AuthorModel"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -13,7 +13,7 @@
         <div class="header-container">
             <h1 class="header-title">Autores</h1>
             <div class="search-bar">
-                <form action="/authors" method="GET" style="display:flex; gap:10px;">
+                <form action="${pageContext.request.contextPath}/authors" method="GET" style="display:flex; gap:10px;">
                     <input type="text" name="query" class="form-control" placeholder="Buscar autor..." value="${query}">
                     <button type="submit" class="btn btn-primary"><i data-lucide="search"></i> Buscar</button>
                 </form>
@@ -35,9 +35,9 @@
                 </thead>
                 <tbody>
                     <%
-                        List<authorModel> authors = (List<authorModel>) request.getAttribute("authors");
+                        List<AuthorModel> authors = (List<AuthorModel>) request.getAttribute("authors");
                         if (authors != null && !authors.isEmpty()) {
-                            for (authorModel a : authors) {
+                            for (AuthorModel a : authors) {
                     %>
                     <tr>
                         <td><%= a.getIdAuthor() %></td>
@@ -78,20 +78,20 @@
                        }
                        if (startPage > 1) {
                 %>
-                   <a href="/authors?page=1&query=<%=q%>" class="page-link">1</a>
+                   <a href="${pageContext.request.contextPath}/authors?page=1&query=<%=q%>" class="page-link">1</a>
                    <% if(startPage > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 
                 <%
                        for (int i = startPage; i <= endPage; i++) {
                 %>
-                   <a href="/authors?page=<%=i%>&query=<%=q%>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%=i%></a>
+                   <a href="${pageContext.request.contextPath}/authors?page=<%=i%>&query=<%=q%>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%=i%></a>
                 <% 
                        }
                        if (endPage < totalPages) {
                 %>
                    <% if(endPage < totalPages - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                   <a href="/authors?page=<%=totalPages%>&query=<%=q%>" class="page-link"><%=totalPages%></a>
+                   <a href="${pageContext.request.contextPath}/authors?page=<%=totalPages%>&query=<%=q%>" class="page-link"><%=totalPages%></a>
                 <%
                        }
                    } 
@@ -107,7 +107,7 @@
                 <h2>Registrar Autor</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="/authors" method="POST">
+            <form action="${pageContext.request.contextPath}/authors" method="POST">
                 <input type="hidden" name="action" value="register">
                 <div class="form-group">
                     <label>Nombre Completo</label>
@@ -134,7 +134,7 @@
                 <h2>Actualizar Autor</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="/authors" method="POST">
+            <form action="${pageContext.request.contextPath}/authors" method="POST">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="idAuthor" id="editAuthorId">
                 <div class="form-group">
@@ -225,6 +225,6 @@
             document.querySelectorAll('.combo-box-container').forEach(setupCombobox);
         });
     </script>
-    <script src="/assets/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 </body>
 </html>

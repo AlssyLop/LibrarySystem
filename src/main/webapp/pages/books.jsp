@@ -1,6 +1,6 @@
 <%@page import="java.util.List" %>
-    <%@page import="model.bookModel" %>
-        <%@page import="model.authorModel" %>
+    <%@page import="model.BookModel" %>
+        <%@page import="model.AuthorModel" %>
             <%@page contentType="text/html" pageEncoding="UTF-8" %>
                 <!DOCTYPE html>
                 <html lang="es">
@@ -16,7 +16,7 @@
                         <div class="header-container">
                             <h1 class="header-title">Libros</h1>
                             <div class="search-bar">
-                                <form action="/books" method="GET" style="display:flex; gap:10px;">
+                                <form action="${pageContext.request.contextPath}/books" method="GET" style="display:flex; gap:10px;">
                                     <input type="text" name="query" class="form-control"
                                         placeholder="Buscar por título o ISBN..." value="${query}"
                                         style="width: 250px;">
@@ -42,9 +42,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% List<bookModel> books = (List<bookModel>) request.getAttribute("books");
+                                    <% List<BookModel> books = (List<BookModel>) request.getAttribute("books");
                                             if (books != null && !books.isEmpty()) {
-                                            for (bookModel b : books) {
+                                            for (BookModel b : books) {
                                             %>
                                             <tr>
                                                 <td>
@@ -94,14 +94,14 @@
                                 if (endPage - startPage < maxVisiblePages - 1) { startPage=Math.max(1, endPage -
                                     maxVisiblePages + 1); } if (startPage> 1) {
                                     %>
-                                    <a href="/books?page=1&query=<%=q%>" class="page-link">1</a>
+                                    <a href="${pageContext.request.contextPath}/books?page=1&query=<%=q%>" class="page-link">1</a>
                                     <% if(startPage> 2) { %><span class="page-link"
                                             style="border:none;background:transparent;">...</span>
                                         <% } %>
                                             <% } %>
 
                                                 <% for (int i=startPage; i <=endPage; i++) { %>
-                                                    <a href="/books?page=<%=i%>&query=<%=q%>"
+                                                    <a href="${pageContext.request.contextPath}/books?page=<%=i%>&query=<%=q%>"
                                                         class="page-link <%= (i == currentPage) ? " active" : "" %>">
                                                         <%=i%>
                                                     </a>
@@ -109,7 +109,7 @@
                                                         <% if(endPage < totalPages - 1) { %><span class="page-link"
                                                                 style="border:none;background:transparent;">...</span>
                                                             <% } %>
-                                                                <a href="/books?page=<%=totalPages%>&query=<%=q%>"
+                                                                <a href="${pageContext.request.contextPath}/books?page=<%=totalPages%>&query=<%=q%>"
                                                                     class="page-link">
                                                                     <%=totalPages%>
                                                                 </a>
@@ -125,7 +125,7 @@
                                 <h2>Registrar Libro</h2>
                                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
                             </div>
-                            <form id="formCreateBook" action="/books" method="POST">
+                            <form id="formCreateBook" action="${pageContext.request.contextPath}/books" method="POST">
                                 <input type="hidden" name="action" value="register">
                                 <div class="form-group">
                                     <label>Título</label>
@@ -161,7 +161,7 @@
                                 <h2>Actualizar Libro</h2>
                                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
                             </div>
-                            <form id="formEditBook" action="/books" method="POST">
+                            <form id="formEditBook" action="${pageContext.request.contextPath}/books" method="POST">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="idBook" id="editBookId">
                                 <div class="form-group">
@@ -191,7 +191,7 @@
                         </div>
                     </div>
 
-                    <script src="/assets/js/app.js"></script>
+                    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
                 </body>
 
                 </html>

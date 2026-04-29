@@ -1,7 +1,7 @@
 <%@page import="java.util.List" %>
-<%@page import="model.loanModel" %>
-<%@page import="model.userModel" %>
-<%@page import="model.bookModel" %>
+<%@page import="model.LoanModel" %>
+<%@page import="model.UserModel" %>
+<%@page import="model.BookModel" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="es">
@@ -29,7 +29,7 @@
 
         <!-- Tab Activos -->
         <div id="tab-actives" class="tab-content <%= "actives".equals(currentTab) ? "active" : "" %>">
-            <form action="/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <form action="${pageContext.request.contextPath}/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
                 <input type="hidden" name="tab" value="actives">
                 <div class="autocomplete-container" style="flex:1;">
                     <input type="hidden" name="idUserSearch" id="filterLoanUserId" value="${idUserSearch}">
@@ -40,7 +40,7 @@
                 </div>
                 <input type="date" name="dateFilter" class="form-control" value="${dateFilter}" style="flex:1;">
                 <button type="submit" class="btn btn-primary"><i data-lucide="filter"></i> Filtrar</button>
-                <a href="/loans?tab=actives" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
+                <a href="${pageContext.request.contextPath}/loans?tab=actives" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
             </form>
 
             <div class="data-table-container">
@@ -57,9 +57,9 @@
                     </thead>
                     <tbody>
                         <%
-                            List<loanModel> activeLoans = (List<loanModel>) request.getAttribute("activeLoans");
+                            List<LoanModel> activeLoans = (List<LoanModel>) request.getAttribute("activeLoans");
                             if (activeLoans != null && !activeLoans.isEmpty()) {
-                                for (loanModel l : activeLoans) {
+                                for (LoanModel l : activeLoans) {
                         %>
                         <tr>
                             <td><%= l.getIdLoan() %></td>
@@ -99,19 +99,19 @@
                         }
                         if (startA > 1) {
                 %>
-                <a href="/loans?tab=actives&pageActive=1&pageHistory=<%=historyCurrentForLink%>" class="page-link">1</a>
+                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=1&pageHistory=<%=historyCurrentForLink%>" class="page-link">1</a>
                 <% if (startA > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 <%
                         for (int i = startA; i <= endA; i++) {
                 %>
-                <a href="/loans?tab=actives&pageActive=<%=i%>&pageHistory=<%=historyCurrentForLink%>" class="page-link <%= (i == activeCurrent) ? "active" : "" %>"><%=i%></a>
+                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=<%=i%>&pageHistory=<%=historyCurrentForLink%>" class="page-link <%= (i == activeCurrent) ? "active" : "" %>"><%=i%></a>
                 <%
                         }
                         if (endA < activeTotal) {
                 %>
                 <% if (endA < activeTotal - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                <a href="/loans?tab=actives&pageActive=<%=activeTotal%>&pageHistory=<%=historyCurrentForLink%>" class="page-link"><%=activeTotal%></a>
+                <a href="${pageContext.request.contextPath}/loans?tab=actives&pageActive=<%=activeTotal%>&pageHistory=<%=historyCurrentForLink%>" class="page-link"><%=activeTotal%></a>
                 <%
                         }
                     }
@@ -121,7 +121,7 @@
 
         <!-- Tab Historial -->
         <div id="tab-history" class="tab-content <%= "history".equals(currentTab) ? "active" : "" %>">
-            <form action="/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <form action="${pageContext.request.contextPath}/loans" method="GET" style="display:flex; gap:10px; margin-bottom: 20px;">
                 <input type="hidden" name="tab" value="history">
                 <div class="autocomplete-container" style="flex:1;">
                     <input type="hidden" name="idUserSearchHist" id="filterHistUserId" value="${idUserSearchHist}">
@@ -132,7 +132,7 @@
                 </div>
                 <input type="date" name="dateFilterHist" class="form-control" value="${dateFilterHist}" style="flex:1;">
                 <button type="submit" class="btn btn-primary"><i data-lucide="filter"></i> Filtrar</button>
-                <a href="/loans?tab=history" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
+                <a href="${pageContext.request.contextPath}/loans?tab=history" class="btn btn-danger"><i data-lucide="x"></i> Limpiar</a>
             </form>
 
             <div class="data-table-container">
@@ -149,9 +149,9 @@
                     </thead>
                     <tbody>
                         <%
-                            List<loanModel> allLoans = (List<loanModel>) request.getAttribute("allLoans");
+                            List<LoanModel> allLoans = (List<LoanModel>) request.getAttribute("allLoans");
                             if (allLoans != null && !allLoans.isEmpty()) {
-                                for (loanModel l : allLoans) {
+                                for (LoanModel l : allLoans) {
                         %>
                         <tr>
                             <td><%= l.getIdLoan() %></td>
@@ -191,19 +191,19 @@
                         }
                         if (startH > 1) {
                 %>
-                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=1" class="page-link">1</a>
+                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=1" class="page-link">1</a>
                 <% if (startH > 2) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
                 <% } %>
                 <%
                         for (int i = startH; i <= endH; i++) {
                 %>
-                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=i%>" class="page-link <%= (i == historyCurrent) ? "active" : "" %>"><%=i%></a>
+                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=i%>" class="page-link <%= (i == historyCurrent) ? "active" : "" %>"><%=i%></a>
                 <%
                         }
                         if (endH < historyTotal) {
                 %>
                 <% if (endH < historyTotal - 1) { %><span class="page-link" style="border:none;background:transparent;">...</span><% } %>
-                <a href="/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=historyTotal%>" class="page-link"><%=historyTotal%></a>
+                <a href="${pageContext.request.contextPath}/loans?tab=history&pageActive=<%=activeCurrentForLink%>&pageHistory=<%=historyTotal%>" class="page-link"><%=historyTotal%></a>
                 <%
                         }
                     }
@@ -220,7 +220,7 @@
                 <h2>Registrar Préstamo</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form id="formCreateLoan" action="/loans" method="POST">
+            <form id="formCreateLoan" action="${pageContext.request.contextPath}/loans" method="POST">
                 <input type="hidden" name="action" value="registerAjax">
 
                 <div class="form-group autocomplete-container">
@@ -255,7 +255,7 @@
                 <h2>Devolver Libro</h2>
                 <button class="btn-icon close-modal"><i data-lucide="x"></i></button>
             </div>
-            <form action="/loans" method="POST">
+            <form action="${pageContext.request.contextPath}/loans" method="POST">
                 <input type="hidden" name="action" value="return">
                 <input type="hidden" name="idLoan" id="returnLoanId">
                 <p style="margin-bottom: 20px;">¿Confirmas que el usuario ha devuelto este libro?</p>
@@ -266,6 +266,6 @@
         </div>
     </div>
 
-    <script src="/assets/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 </body>
 </html>
