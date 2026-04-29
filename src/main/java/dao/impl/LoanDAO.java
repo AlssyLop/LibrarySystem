@@ -100,6 +100,60 @@ public class LoanDAO implements ILoanDAO {
     }
 
     @Override
+    public List<LoanModel> loanHistory() {
+        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, "
+                + "u.name AS user_name, b.title AS book_title "
+                + "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                + "ORDER BY l.id_loan DESC";
+        List<LoanModel> loansList = new ArrayList<>();
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql);
+                        ResultSet rs = ps.executeQuery()) {
+
+                    while (rs.next()) {
+                        LoanModel loan = mapResultSetToLoan(rs);
+                        loansList.add(loan);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error fetching loan history: ", e);
+        }
+
+        return loansList;
+    }
+
+    @Override
+    public List<LoanModel> listActiveLoans() {
+        String sql = "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, "
+                + "u.name AS user_name, b.title AS book_title "
+                + "FROM loans l LEFT JOIN users u ON l.id_user = u.id_user LEFT JOIN books b ON l.id_book = b.id_book "
+                + "WHERE l.returned = 0 ORDER BY l.id_loan DESC";
+        List<LoanModel> loansList = new ArrayList<>();
+
+        try {
+            Connection conn = ConnectionDB.connect();
+            if (conn != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sql);
+                        ResultSet rs = ps.executeQuery()) {
+
+                    while (rs.next()) {
+                        LoanModel loan = mapResultSetToLoan(rs);
+                        loansList.add(loan);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error fetching active loans: ", e);
+        }
+
+        return loansList;
+    }
+
+    @Override
     public List<LoanModel> listActiveLoansPaginated(int limit, int offset, Integer idUserSearch, Date dateFilter) {
         StringBuilder sql = new StringBuilder(
                 "SELECT l.id_loan, l.loan_date, l.return_date, l.id_user, l.id_book, l.returned, "
