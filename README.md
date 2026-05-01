@@ -164,5 +164,5 @@ Los listados (DAO) ahora devuelven los registros en orden descendente por defect
 Este proyecto es desarrollado exclusivamente para propósitos formativos y académicos.
 
 <div align="center">
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AlssyLop/LibrarySystem)
+<a href="https://deepwiki.com/AlssyLop/LibrarySystem"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </div>
